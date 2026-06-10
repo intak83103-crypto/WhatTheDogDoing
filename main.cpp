@@ -32,6 +32,7 @@ public:
     }
   }
   static void PrintNewUser() {
+    PrintDot(9);
     std::cout << "創建新的用戶中..." << std::endl;
     std::cout << "請輸入用戶名 :  " << std::endl;
   }
@@ -75,6 +76,7 @@ public:
     Divider();
   }
   static void PrintHelpHint() {
+    std::cout << std::endl;
     std::cout << "Hint : 隨時輸入 Help / h 列出指令列表" << std::endl;
   }
   static void PrintCinError() {
@@ -115,7 +117,7 @@ public:
     Divider();
     std::cout << "HELP!" << std::endl;
     Divider();
-    std::cout << "輸入商品編號購買" << std::endl;
+    std::cout << "          | 輸入商品編號購買" << std::endl;
     std::cout << "Q / Quit  | 離開商店" << std::endl;
     std::cout << "L / list  | 列出商店物品" << std::endl; 
   }
@@ -184,6 +186,45 @@ public:
     PrintDot(9);
     Divider();
     std::cout << "已回到刀盾頁面" << std::endl;
+  }
+  static void PrintConfirmDelUser(std::string name);
+  static void PrintDelUser(std::string name) {
+    PrintDot(9);
+    Divider();
+    std::cout << "已刪除 : " << name  <<std::endl;
+  }
+  static void PrintCancelDelUser(std::string name) {
+    PrintDot(9);
+    Divider();
+    std::cout << "取消刪除 : " << name << std::endl;
+  }
+  static void PrintDelUserError() {
+    PrintDot(9);
+    Divider();
+    std::cout << "Error : 無法刪除最後一位使用者" << std::endl;
+  }
+  static void PrintDelUserHelp() {
+    PrintDot(9);
+    Divider();
+    std::cout << "HELP!" << std::endl;
+    Divider();
+    std::cout << "Y / Yes   | 確認刪除" << std::endl;
+    std::cout << "N / no    | 取消刪除" << std::endl;
+  }
+  static void PrintSwitchUserError() {
+    PrintDot(9);
+    Divider();
+    std::cout << "用戶不存在" << std::endl;
+  }
+  static void PrintSwitchUser(std::string name) {
+    PrintDot(9);
+    Divider();
+    std::cout << "已切換至 : " << name << std::endl;
+  }
+  static void PrintBuyDone(std::string name) {
+    PrintDot(9);
+    Divider();
+    std::cout << "已購買 : " << name << std::endl;
   }
 };
 
@@ -327,9 +368,11 @@ private:
   }
 
 public:
-  DogDoing() {
+  DogDoing() {}
+
+  explicit DogDoing(int i) {
     Init();
-    name = "DogDoing_" + std::to_string(nums_of_dd);
+    name = "DogDoing_" + std::to_string(i);
     nums_of_dd++;
     IO::PrintDDSetUp(*this);
   }
@@ -428,6 +471,7 @@ private:
   int curr_dd = -1;
   std::vector<DogDoing> dogdoings;
   int coin;
+  int id_of_dd;
 
 public:
 
@@ -435,10 +479,11 @@ public:
   explicit User(std::string name, int id) {
     this->name = name;
     this->id = id;
+    id_of_dd = 1;
     IO::PrintUserSetUp(name,id);
     std::string dd_name;
     IO::FirstDD();
-    dogdoings.emplace_back(DogDoing());
+    dogdoings.emplace_back(DogDoing(id_of_dd++));
     curr_dd = 0;
     coin = 200;
   }
@@ -465,7 +510,7 @@ public:
     return dogdoings[index];
   }
   void AddDD() {
-    dogdoings.emplace_back(DogDoing());
+    dogdoings.emplace_back(DogDoing(id_of_dd++));
     curr_dd = dogdoings.size() - 1;
   }
   int GetCoin() const {
@@ -503,7 +548,6 @@ void IO::PrintDDSetUp(const DogDoing& dd) {
   std::cout << "獲得刀盾 : ";
   PrintDDtitle(dd);
   std::cout << std::endl;
-  Divider();   
 }
 
 void IO::ListAllDD(User& user) {
@@ -565,7 +609,7 @@ void IO::ListAllUser(std::vector<User>& users, int index) {
   int n = users.size();
   PrintDot(9);
   Divider();
-  std::cout << "所有的使用者 : " << std::endl;
+  std::cout << "所有的使用者 :        (輸入數字切換使用者)" << std::endl;
   Divider();
   std::cout << "No.  | Name" << std::endl;
   Divider();
@@ -581,6 +625,11 @@ void IO::ListAllUser(std::vector<User>& users, int index) {
   }
 }
 
+void IO::PrintConfirmDelUser(std::string name) {
+  PrintDot(9);
+  Divider();
+  std::cout << "確認刪除 " << name << " ? ( Y / N ) "  << std::endl;
+}
 
 void Shop::Buy(int index, User& user) {
   if ( index <= 0 || index > products.size() ) {
@@ -591,32 +640,43 @@ void Shop::Buy(int index, User& user) {
   Product* product = products[index - 1];
 
   if ( user.PayCoin(product->GetPrice()) ) {
+    IO::PrintBuyDone(product->GetName());
     product->Apply(user);
   }
 }
 
 class ProductDD : public Product {
 public:
-  ProductDD() : Product("購買新的刀盾", 100) {}
+  ProductDD() : Product("新的刀盾", 100) {}
 
   void Apply(User& user) const override  {
-    IO::PrintDot(9);
     user.AddDD();
   }
 
+};
+
+class ProductHealPotion : public Product {
+public:
+  ProductHealPotion() : Product("治療藥水", 20) {}
+
+  void Apply(User& user) const override {
+    IO::PrintDot(9);
+
+  }
 };
 
 
 
 
 enum class Control {  // 在Editor裡需要知道現在在操控的是什麼
-  User, DogDoing, Shop, Buy, None
+  User, DogDoing, Shop, Buy, None, DelUser
 };
 enum class Operate{   // 可操控選項
   None, PrintInfo, ListDD, Quit, HelpDD, HelpUser, RenameDD, Unknown, SwitchDD,
   Shop, HelpShop, QuitShop, ListShop, GetUserInfo, Buy,
-  HelpBuy, CurrectBuy, IncurrectBuy, 
-  User, AddUser, DelUser, ReNameUser, QuitUser, ListUser, BacktoDD, SwitchUser
+  HelpBuy, ConfirmBuy, CancelBuy, 
+  User, AddUser, DelUser, ReNameUser, QuitUser, ListUser, BacktoDD, SwitchUser,
+  ConfirmDelUser, CanCelDelUser, ConfirmDel, CanCelDel, HelpDelUser
 };
 
 
@@ -629,6 +689,7 @@ private:
   Shop shop;
   int buy_index = -1;
   int switch_dd_index = -1;
+  int switch_user_index = -1;
 
   void NewUser() {
     std::string user_name;
@@ -698,8 +759,16 @@ private:
       } 
       if ( op == "b" || op == "back" ) {
         return Operate::BacktoDD;
-      } if ( op == "n" || op == "new" ) {
+      } 
+      if ( op == "n" || op == "new" ) {
         return Operate::AddUser;
+      }
+      if ( op == "d" || op == "del" ) {
+        return Operate::DelUser;
+      }
+      if ( IsDigit(op) ) {
+        switch_user_index = std::stoi(op);
+        return Operate::SwitchUser;
       }
       
 
@@ -711,7 +780,7 @@ private:
         buy_index = std::stoi(op);
         return Operate::Buy;
       }
-      if ( op == "q" || op == "quit" ) {
+      if ( op == "q" || op == "quit" || op == "b" || op == "back" ) {
         return Operate::QuitShop;
       } 
       if ( op == "l" || op == "list" ) {
@@ -721,14 +790,24 @@ private:
 
     } else if ( control == Control::Buy ) {
       if ( op == "y" || op == "yes" ) {
-        return Operate::CurrectBuy;
+        return Operate::ConfirmBuy;
       }
       if ( op == "h" || op == "help" ) {
         return Operate::HelpBuy;
       }
       if ( op == "n" || op == "no" ) {
-        return Operate::IncurrectBuy;
+        return Operate::CancelBuy;
 
+      }
+    } else if ( control == Control::DelUser ) {
+      if ( op == "h" || op == "help" ) {
+        return Operate::HelpDelUser;
+      } 
+      if ( op == "y" || op == "yes" ) {
+        return Operate::ConfirmDelUser;
+      }
+      if ( op == "n" || op == "no" ) {
+        return Operate::CanCelDelUser;
       }
     }
     return Operate::Unknown;
@@ -794,7 +873,7 @@ private:
       shop.ListProduct(coin);
     } else if ( op == Operate::Buy ) {
       int product = std::stoi(str);
-      if ( ComfirmIndex(product) == false ) {
+      if ( ConfirmIndex(product) == false ) {
         IO::PrintBuyError();
       } else {
         IO::PrintBuyInfo(shop.GetProduct(product));
@@ -804,7 +883,7 @@ private:
     
   
   }
-  bool ComfirmIndex(int index) {
+  bool ConfirmIndex(int index) {
     if ( index <= 0 || index > shop.GetNumOfProduct() ) {
       return false;
     }
@@ -814,11 +893,11 @@ private:
     User& user = users[curr_user];
     if ( op == Operate::HelpBuy) {
       IO::PrintBuyHelp();
-    } else if ( op == Operate::CurrectBuy ) {
+    } else if ( op == Operate::ConfirmBuy ) {
       shop.Buy(buy_index, user);
       control = Control::Shop;
       buy_index = -1;
-    } else if ( op == Operate::IncurrectBuy ) {
+    } else if ( op == Operate::CancelBuy ) {
       IO::PrintBuyCancel();
       control = Control::Shop;
       buy_index = -1;
@@ -843,6 +922,45 @@ private:
     } else if ( op == Operate::AddUser ) {
       NewUser();
       control = Control::DogDoing;
+    } else if ( op == Operate::DelUser ) {
+      std::string str = user.GetUserName();
+      IO::PrintConfirmDelUser(str);
+      control = Control::DelUser;
+    } else if ( op == Operate::SwitchUser ) {
+      if ( switch_user_index - 1 < 0 || switch_user_index - 1 >= users.size() ) {
+        IO::PrintSwitchUserError();
+        switch_user_index = -1;
+        return;
+      }
+      curr_user = switch_user_index - 1;
+      switch_user_index = -1;
+      IO::PrintSwitchUser(users[curr_user].GetUserName());
+      control = Control::DogDoing;
+    }
+  }
+
+  void OperateDelUser(Operate op, std::string str) {
+    User& user = users[curr_user];
+    std::string user_name = user.GetUserName();
+    if ( op == Operate::HelpDelUser ) {
+      IO::PrintDelUserHelp();
+    } else if ( op == Operate::ConfirmDelUser ) {
+      if ( users.size() <= 1 ) {
+        IO::PrintDelUserError();
+        control = Control::User;
+        return;
+      }
+      IO::PrintDelUser(user_name);
+      users.erase(users.begin() + curr_user);
+      if ( curr_user >= users.size() - 1) {
+        curr_user = users.size() - 1;
+      }
+      control = Control::User;
+    } else if ( op == Operate::Unknown ) {
+      IO::PrintInputError(str);
+    } else if ( op == Operate::CanCelDelUser ) {
+      IO::PrintCancelDelUser(user_name);
+      control = Control::User;
     }
   }
 
@@ -868,7 +986,9 @@ public:
       } else if ( control == Control::Buy ) {
         OperateBuy(op, str);
       } else if ( control == Control::User ) {
-        OperateUser(op,str);
+        OperateUser(op, str);
+      } else if ( control == Control::DelUser ) {
+        OperateDelUser(op, str);
       }
 
 

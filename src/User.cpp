@@ -22,7 +22,7 @@ User::User(std::string name, int id) {
 User::~User() {
   int n = backpack.size();
   for ( int i = 0; i < n; i++ ) {
-    delete backpack[i];
+    delete backpack[i].item;
   }
 }
 
@@ -90,20 +90,24 @@ void User::SwitchDD(int index) {
 }
 
 void User::GetItem(Item* item) {
-  backpack.push_back(item);
+  int n = backpack.size();
+  for ( int i = 0; i < n; i ++ ) {
+    if ( backpack[i].item->GetItemType() == item->GetItemType() ) {
+      backpack[i].count += 1;
+      delete item;
+      return;
+    }
+  }
+  backpack.push_back({item, 1});
 }
 
 void User::ListBackpack() {
-  std::vector<std::string> item_name;
+  std::vector<BackpackInfo> item;
   int n = backpack.size();
   for ( int i = 0; i < n; i++ ) {
-    item_name.push_back(backpack[i]->GetName());
+    item.push_back({backpack[i].item->GetName(), backpack[i].count});
   }
-  IO::ListBackpack(name, item_name);
-}
-
-const std::vector<Item*>& User::GetUserBackpack() const {
-  return backpack;
+  IO::ListBackpack(name, item);
 }
 
 void User::UseItem(int index) {
@@ -113,9 +117,18 @@ void User::UseItem(int index) {
     IO::UseItemError();
     return;
   }
-  backpack[real_index]->Use(*this);
+  if ( backpack[real_index].count > 0 ) {
+    backpack[real_index].item->Use(*this);
+    backpack[real_index].count -= 1;
+  }
+  if ( backpack[real_index].count <= 0 ) {
+    DeleteItem(real_index);
+  }
 }
-
+void User::DeleteItem(int index) {
+  delete backpack[index].item;
+  backpack.erase(backpack.begin() + index);
+}
 Item* User::GetItemOfBackpack(int index) {
   int real_index = index - 1;
   if ( real_index < 0 ||
@@ -123,7 +136,7 @@ Item* User::GetItemOfBackpack(int index) {
     IO::UseItemError();
     return nullptr;
   }
-  return backpack[real_index];
+  return backpack[real_index].item;
 }
 
 void User::ListAllDD() const {

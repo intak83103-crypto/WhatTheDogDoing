@@ -100,7 +100,7 @@ Operate Editor::GetOp(std::string op) {
       buy_index = std::stoi(op);
       return Operate::Buy;
     }
-    if ( op == "q" || op == "quit" || op == "b" || op == "back" ) {
+    if ( op == "b" || op == "back" ) {
       return Operate::QuitShop;
     } 
     if ( op == "l" || op == "list" ) {

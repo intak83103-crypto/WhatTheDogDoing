@@ -9,13 +9,17 @@
 
 class User {
 private:
+  struct BackpackSlot{
+    Item* item;
+    int count;
+  };
   std::string name;
   int id;
   int curr_dd = -1;
   std::vector<DogDoing> dogdoings;
   int coin;
   int id_of_dd;
-  std::vector<Item*> backpack;
+  std::vector<BackpackSlot> backpack;
 
 public:
   User();
@@ -36,7 +40,7 @@ public:
   void SwitchDD(int index);
   void GetItem(Item* item);
   void ListBackpack();
-  const std::vector<Item*>& GetUserBackpack() const;
+  void DeleteItem(int index);
   void UseItem(int index);
   Item* GetItemOfBackpack(int index);
   void ListAllDD() const;

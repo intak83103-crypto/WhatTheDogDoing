@@ -55,7 +55,7 @@ public:
   static void PrintSwitchUserError();
   static void PrintSwitchUser(std::string name);
   static void PrintBuyDone(std::string name);
-  static void ListBackpack(std::string user, std::vector<std::string>& item);
+  static void ListBackpack(std::string user, std::vector<BackpackInfo>& backpack);
   static void PrintSwitchBackpack();
   static void UseItem(std::string& name);
   static void PrintQuitBack();

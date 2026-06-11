@@ -29,6 +29,11 @@ struct UserInfo {
   int coin;
 };
 
+struct BackpackInfo{
+  std::string name;
+  int count;
+};
+
 
 
 

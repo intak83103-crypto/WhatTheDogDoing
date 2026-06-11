@@ -1,6 +1,10 @@
 #include "../include/Items.h"
 
-ItemHealPotion::ItemHealPotion() : Item("治療藥水") {}
+
+
+// 治療藥水
+
+ItemHealPotion::ItemHealPotion() : Item("治療藥水", ItemType::HealPotion) {}
 
 void ItemHealPotion::Use(User& user) {
   UsePrint();

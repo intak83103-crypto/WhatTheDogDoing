@@ -136,7 +136,7 @@ void IO::ListAllDD(std::vector<DDtitleInfo> dd, std::string name, int index) {
   Divider();
   for ( int i = 0; i < n; i++ ) {
     std::cout << i + 1;
-    if ( i == index - 1 ) {
+    if ( i == index ) {
       std::cout << "  > ";
     } else {
       std::cout << "    ";
@@ -195,7 +195,7 @@ void IO::PrintHelpShop() {
   std::cout << "HELP!" << std::endl;
   Divider();
   std::cout << "          | 輸入商品編號購買" << std::endl;
-  std::cout << "Q / Quit  | 離開商店" << std::endl;
+  std::cout << "b / Back  | 離開商店" << std::endl;
   std::cout << "L / list  | 列出商店物品" << std::endl; 
 }
 
@@ -374,18 +374,19 @@ void IO::PrintBuyDone(std::string name) {
   std::cout << "已購買 : " << name << std::endl;
 }
 
-void IO::ListBackpack(std::string user, std::vector<std::string>& item) {
+void IO::ListBackpack(std::string user, std::vector<BackpackInfo>& backpack) {
   PrintDot(9);
   Divider();
   std::cout << user + "的背包 : " << std::endl;
   Divider();
-  int n = item.size();
+  int n = backpack.size();
   if ( n == 0 ) {
     std::cout << "沒有東西..." << std::endl;
+    return;
   }
   for ( int i = 0; i < n; i ++ ) {
     std::cout << i + 1 << "  | ";
-    std::cout << item[i] << std::endl;
+    std::cout << backpack[i].name << " x" << backpack[i].count << std::endl;
   }
 }
 

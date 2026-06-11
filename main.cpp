@@ -8,9 +8,9 @@
 class DogDoing;
 class User;
 class Product;
+class Item;
 
-
-class IO{  //  Input / Output
+class IO {  //  Input / Output
 public:
   static void PrintDot(int dot) {
     for ( int i = 0; i < dot; i++ ) {
@@ -90,6 +90,7 @@ public:
     std::cout << "L / List  | 列出" << name << "的所有刀盾 " << std::endl;
     std::cout << "D / DD    | 查看當前刀盾數值" << std::endl;
     std::cout << "R / Rn    | 更改目前刀盾名稱" << std::endl;
+    std::cout << "B / bp    | 查看" << name << "的背包" << std::endl;
     std::cout << "S / Shop  | 查看商店" << std::endl;
     std::cout << "M / Me    | 查看" << name << "的資訊" << std::endl;
     std::cout << "U / User  | 進入使用者介面" << std::endl;
@@ -226,6 +227,36 @@ public:
     Divider();
     std::cout << "已購買 : " << name << std::endl;
   }
+  static void ListBackpack(std::string user,const std::vector<Item*>& item);
+  static void PrintSwitchBackpack() {
+    PrintDot(9);
+    Divider();
+    std::cout << "已切換至背包" << std::endl;
+  }
+  static void UseItem(std::string& name) {
+    PrintDot(9);
+    Divider();
+    std::cout << "已使用 : " << name << std::endl;
+  }
+  static void PrintQuitBack() {
+    PrintDot(9);
+    Divider();
+    std::cout << "已離開背包" << std::endl;
+  }
+  static void UseItemError() {
+    PrintDot(9);
+    Divider();
+    std::cout << "找不到這個物品" << std::endl;
+  }
+  static void HelpBackpack() {
+    PrintDot(9);
+    Divider();
+    std::cout << "HELP!" << std::endl;
+    Divider();
+    std::cout << "L / List  | 列出所有背包物品 " << std::endl;
+    std::cout << "          | 輸入數字使用物品" << std::endl;
+    std::cout << "b / back  | 回到刀盾頁面" << std::endl;    
+  }
 };
 
 
@@ -236,13 +267,33 @@ class Item {
 private:
   std::string name;
 public:
+  Item(std::string name) {
+    this->name = name;
+  }
   virtual ~Item() {}
   virtual void Use(User& user) = 0;
   virtual std::string GetName() {
     return name;
   }
+  virtual void UsePrint() {
+    IO::UseItem(name);
+  }
 };
 
+void IO::ListBackpack(std::string user,const std::vector<Item*>& item) {
+  PrintDot(9);
+  Divider();
+  std::cout << user + "的背包 : " << std::endl;
+  Divider();
+  int n = item.size();
+  if ( n == 0 ) {
+    std::cout << "沒有東西..." << std::endl;
+  }
+  for ( int i = 0; i < n; i ++ ) {
+    std::cout << i + 1 << "  | ";
+    std::cout << item[i]->GetName() << std::endl;
+  }
+}
 
 
 
@@ -424,6 +475,12 @@ public:
       ApplyLevelData();
     }
   }
+  void Heal(int heal) {
+    hp += heal;
+    if ( hp >= max_hp ) {
+      hp = max_hp;
+    }
+  }
 };
 
 const std::vector<DogDoing::LevelData> DogDoing::level_table = {
@@ -472,6 +529,7 @@ private:
   std::vector<DogDoing> dogdoings;
   int coin;
   int id_of_dd;
+  std::vector<Item*> backpack;
 
 public:
 
@@ -486,7 +544,15 @@ public:
     dogdoings.emplace_back(DogDoing(id_of_dd++));
     curr_dd = 0;
     coin = 200;
+    backpack = {};
   }
+  ~User() {
+    int n = backpack.size();
+    for ( int i = 0; i < n; i++ ) {
+      delete backpack[i];
+    }
+  }
+
   int GetNumOfDD() const {
     return dogdoings.size();
   }
@@ -540,8 +606,31 @@ public:
     IO::PrintSwitchDDSuccess(dogdoings[curr_dd]);
 
   }
-  
-
+  void GetItem(Item* item) {
+    backpack.push_back(item);
+  }
+  void ListBackpack() {
+    IO::ListBackpack(name, backpack);
+  }
+  const std::vector<Item*>& GetUserBackpack() const {
+    return backpack;
+  }
+  void UseItem(int index) {
+    int real_index = index - 1;
+    if ( real_index < 0 || real_index >= backpack.size()  ) {
+      IO::UseItemError();
+      return;
+    }
+    backpack[real_index]->Use(*this);
+  }
+  Item* GetItemOfBackpack(int index) {
+    int real_index = index - 1;
+    if ( real_index < 0 || real_index >= backpack.size()  ) {
+      IO::UseItemError();
+      return nullptr;
+    }
+    return backpack[real_index];
+  }
 };
 
 void IO::PrintDDSetUp(const DogDoing& dd) {
@@ -655,24 +744,32 @@ public:
 
 };
 
+
+class ItemHealPotion : public Item {
+public:
+  ItemHealPotion() : Item("治療藥水") {}
+  void Use(User& user) override {
+    UsePrint();
+  }
+};
+
 class ProductHealPotion : public Product {
 public:
   ProductHealPotion() : Product("治療藥水", 20) {}
 
   void Apply(User& user) const override {
     IO::PrintDot(9);
-
+    user.GetItem(new ItemHealPotion());
   }
 };
 
 
-
-
 enum class Control {  // 在Editor裡需要知道現在在操控的是什麼
-  User, DogDoing, Shop, Buy, None, DelUser
+  User, DogDoing, Shop, Buy, None, DelUser, Backpack
 };
 enum class Operate{   // 可操控選項
   None, PrintInfo, ListDD, Quit, HelpDD, HelpUser, RenameDD, Unknown, SwitchDD,
+  Backpack, ListBackpack, UseItem, QuitBackpack, HelpBackpack,
   Shop, HelpShop, QuitShop, ListShop, GetUserInfo, Buy,
   HelpBuy, ConfirmBuy, CancelBuy, 
   User, AddUser, DelUser, ReNameUser, QuitUser, ListUser, BacktoDD, SwitchUser,
@@ -690,6 +787,7 @@ private:
   int buy_index = -1;
   int switch_dd_index = -1;
   int switch_user_index = -1;
+  int use_item_of_bp = -1;
 
   void NewUser() {
     std::string user_name;
@@ -745,6 +843,9 @@ private:
       }
       if ( op == "u" || op == "user" ) {
         return Operate::User;
+      }
+      if ( op == "b" || op == "bp" ) {
+        return Operate::Backpack;
       }
 
     } else if ( control == Control::User ) {
@@ -809,6 +910,20 @@ private:
       if ( op == "n" || op == "no" ) {
         return Operate::CanCelDelUser;
       }
+    } else if ( control == Control::Backpack ) {
+      if ( op == "h" || op == "help" ) {
+        return Operate::HelpBackpack;
+      }
+      if ( op == "b" || op == "back" ) {
+        return Operate::QuitBackpack;
+      }
+      if ( op == "l" || op == "list" ) {
+        return Operate::ListBackpack;
+      }
+      if ( IsDigit(op) ) {
+        use_item_of_bp = std::stoi(op);
+        return Operate::UseItem;
+      }
     }
     return Operate::Unknown;
   }
@@ -844,6 +959,10 @@ private:
     } else if ( op == Operate::User ) {
       control = Control::User;
       IO::PrintUser();
+    } else if ( op == Operate::Backpack ) {
+      control = Control::Backpack;
+      IO::PrintSwitchBackpack();
+      IO::ListBackpack(user.GetUserName(), user.GetUserBackpack());
     }
     
     else {
@@ -852,10 +971,6 @@ private:
 
   }
   
-  void SetUpShop() {
-    shop.AddProduct(new ProductDD());
-  }
-
   void OperateShop(Operate op, std::string str) {
     User& user = users[curr_user];
     int coin = user.GetCoin();
@@ -889,6 +1004,7 @@ private:
     }
     return true;
   }
+
   void OperateBuy(Operate op, std::string str ) {
     User& user = users[curr_user];
     if ( op == Operate::HelpBuy) {
@@ -964,6 +1080,30 @@ private:
     }
   }
 
+  void OperateBackpack(Operate op,std::string str) {
+    User& user = users[curr_user];
+    if ( op == Operate::Unknown ) {
+      IO::PrintInputError(str);
+    } else if ( op == Operate::QuitBackpack) {
+      IO::PrintQuitBack();
+      control = Control::DogDoing;
+    } else if ( op == Operate::HelpBackpack) {
+      IO::HelpBackpack();
+    } else if ( op == Operate::ListBackpack ) {
+      user.ListBackpack();
+    } else if ( op == Operate::UseItem ) {
+      user.UseItem(use_item_of_bp);
+      use_item_of_bp = -1;
+
+    }
+  }
+
+  void SetUpShop() {
+    shop.AddProduct(new ProductDD());
+    shop.AddProduct(new ProductHealPotion());
+  }
+
+
 public:
   void Run() {
     Start();
@@ -989,6 +1129,8 @@ public:
         OperateUser(op, str);
       } else if ( control == Control::DelUser ) {
         OperateDelUser(op, str);
+      } else if ( control == Control::Backpack ) {
+        OperateBackpack(op, str);
       }
 
 
@@ -1004,4 +1146,5 @@ public:
 int main() {
   Editor editor;
   editor.Run();
+  
 }

@@ -5,6 +5,7 @@
 
 #include "Product.h"
 
+
 class User;
 
 class Shop {
@@ -19,6 +20,8 @@ public:
   void Buy(int index, User& user);
   Product* GetProduct(int index);
   int GetNumOfProduct();
+
+  std::vector<ProductInfo> GetAllProDuctInfo() const;
 };
 
 #endif

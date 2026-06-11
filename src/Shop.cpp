@@ -1,10 +1,12 @@
 #include "../include/Shop.h"
 
+#include <cstddef>
+
 #include "../include/IO.h"
 #include "../include/User.h"
 
 void Shop::ListProduct(int coin) {
-  IO::ListProduct(products, coin);
+  IO::ListProduct(GetAllProDuctInfo(), coin);
 }
 
 void Shop::AddProduct(Product* p) {
@@ -19,7 +21,7 @@ Shop::~Shop() {
 }
 
 void Shop::Buy(int index, User& user) {
-  if ( index <= 0 || index > products.size() ) {
+  if ( index <= 0 || static_cast<std::size_t>(index) > products.size() ) {
     IO::PrintBuyError();
     return;
   }
@@ -38,4 +40,12 @@ Product* Shop::GetProduct(int index) {
 
 int Shop::GetNumOfProduct() {
   return products.size();
+}
+
+std::vector<ProductInfo> Shop::GetAllProDuctInfo() const {
+  std::vector<ProductInfo> infos;
+  for ( Product* p : products ) {
+    infos.push_back(p->InfoPackage());
+  }
+  return infos;
 }

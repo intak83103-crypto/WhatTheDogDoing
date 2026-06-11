@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#include "IO.h"
+#include "DisplayData.h"
+
 
 class DogDoing {
 private:
@@ -47,6 +50,9 @@ public:
   void SetName(std::string name);
   void AddExp(int value);
   void Heal(int heal);
+  DDtitleInfo TitlePackage() const;
+  DDinfo InfoPackage() const;
+  
 };
 
 #endif

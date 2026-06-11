@@ -6,6 +6,7 @@
 
 #include "Shop.h"
 #include "User.h"
+#include "DisplayData.h"
 
 enum class Control {
   User, DogDoing, Shop, Buy, None, DelUser, Backpack
@@ -32,6 +33,7 @@ private:
   int switch_user_index = -1;
   int use_item_of_bp = -1;
 
+  std::vector<std::string> GetUserNameArray() const;
   void NewUser();
   void Start();
   std::string ToLower(std::string str);

@@ -2,6 +2,7 @@
 #define PRODUCT_H
 
 #include <string>
+#include "DisplayData.h"
 
 class User;
 
@@ -20,6 +21,7 @@ public:
   std::string GetName() const;
   int GetPrice() const;
   void PrintProduct();
+  ProductInfo InfoPackage() const;
 };
 
 #endif

@@ -1,5 +1,7 @@
 #include "../include/User.h"
 
+#include <cstddef>
+
 #include "../include/IO.h"
 
 User::User() {}
@@ -75,16 +77,16 @@ bool User::PayCoin(int price) {
 }
 
 void User::PrintInfo() const {
-  IO::PrintUserInfo(*this);
+  IO::PrintUserInfo({name, GetNumOfDD(), coin});
 }
 
 void User::SwitchDD(int index) {
-  if ( index <= 0 || index > dogdoings.size() ) {
+  if ( index <= 0 || static_cast<std::size_t>(index) > dogdoings.size() ) {
     IO::PrintSwitchDDError();
     return;
   }
   curr_dd = index - 1;
-  IO::PrintSwitchDDSuccess(dogdoings[curr_dd]);
+  IO::PrintSwitchDDSuccess(dogdoings[curr_dd].GetName());
 }
 
 void User::GetItem(Item* item) {
@@ -92,7 +94,12 @@ void User::GetItem(Item* item) {
 }
 
 void User::ListBackpack() {
-  IO::ListBackpack(name, backpack);
+  std::vector<std::string> item_name;
+  int n = backpack.size();
+  for ( int i = 0; i < n; i++ ) {
+    item_name.push_back(backpack[i]->GetName());
+  }
+  IO::ListBackpack(name, item_name);
 }
 
 const std::vector<Item*>& User::GetUserBackpack() const {
@@ -101,7 +108,8 @@ const std::vector<Item*>& User::GetUserBackpack() const {
 
 void User::UseItem(int index) {
   int real_index = index - 1;
-  if ( real_index < 0 || real_index >= backpack.size()  ) {
+  if ( real_index < 0 ||
+       static_cast<std::size_t>(real_index) >= backpack.size()  ) {
     IO::UseItemError();
     return;
   }
@@ -110,9 +118,22 @@ void User::UseItem(int index) {
 
 Item* User::GetItemOfBackpack(int index) {
   int real_index = index - 1;
-  if ( real_index < 0 || real_index >= backpack.size()  ) {
+  if ( real_index < 0 ||
+       static_cast<std::size_t>(real_index) >= backpack.size()  ) {
     IO::UseItemError();
     return nullptr;
   }
   return backpack[real_index];
+}
+
+void User::ListAllDD() const {
+  IO::ListAllDD(GetAllDDtitleInfo(), name, curr_dd);
+}
+
+std::vector<DDtitleInfo> User::GetAllDDtitleInfo() const {
+  std::vector<DDtitleInfo> ddstitle;
+  for ( DogDoing dd : dogdoings ) {
+    ddstitle.push_back(dd.TitlePackage());
+  }
+  return ddstitle;
 }

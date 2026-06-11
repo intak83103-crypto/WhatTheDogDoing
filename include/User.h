@@ -39,6 +39,8 @@ public:
   const std::vector<Item*>& GetUserBackpack() const;
   void UseItem(int index);
   Item* GetItemOfBackpack(int index);
+  void ListAllDD() const;
+  std::vector<DDtitleInfo> GetAllDDtitleInfo() const;
 };
 
 #endif

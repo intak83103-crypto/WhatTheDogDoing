@@ -1,6 +1,6 @@
 #include "../include/DogDoing.h"
 
-#include "../include/IO.h"
+#include <cstddef>
 
 const std::vector<DogDoing::LevelData> DogDoing::level_table = {
   {1, 0, 50, 3, 10},
@@ -39,14 +39,14 @@ DogDoing::DogDoing(int i) {
   Init();
   name = "DogDoing_" + std::to_string(i);
   nums_of_dd++;
-  IO::PrintDDSetUp(*this);
+  IO::PrintDDSetUp({name, rank, level});
 }
 
 DogDoing::DogDoing(std::string name) {
   Init();
   nums_of_dd++;
   this->name = name;
-  IO::PrintDDSetUp(*this);
+  IO::PrintDDSetUp({name, rank, level});
 }
 
 std::string DogDoing::GetName() const {
@@ -82,18 +82,20 @@ double DogDoing::GetMaxMp() const {
 }
 
 void DogDoing::PrintInfo() const {
-  IO::PrintDDInfo(*this);
+  DDinfo dd = InfoPackage();
+  IO::PrintDDInfo(dd);
 }
 
 void DogDoing::SetName(std::string name) {
   this->name = name;
-  IO::PrintRenameSuccess(*this);
+  DDinfo dd = InfoPackage();
+  IO::PrintRenameSuccess(dd);
 }
 
 void DogDoing::AddExp(int value) {
   exp = exp + value;
 
-  while ( level < level_table.size() &&
+  while ( static_cast<std::size_t>(level) < level_table.size() &&
           exp >= level_table[level].need_exp ) {
     level = level + 1;
     ApplyLevelData();
@@ -105,4 +107,13 @@ void DogDoing::Heal(int heal) {
   if ( hp >= max_hp ) {
     hp = max_hp;
   }
+}
+
+DDtitleInfo DogDoing::TitlePackage() const{
+  return {name, rank, level};
+}
+
+DDinfo DogDoing::InfoPackage() const {
+  return {TitlePackage(), hp, max_hp, 
+          mp, max_mp, attack};
 }

@@ -1,6 +1,7 @@
 #include "../include/Editor.h"
 
 #include <cctype>
+#include <cstddef>
 
 #include "../include/IO.h"
 #include "../include/Products.h"
@@ -156,7 +157,7 @@ void Editor::OperateDogDoing(Operate op, std::string str) {
   } else if ( op == Operate::PrintInfo ) {
     user.GetCurrentDD().PrintInfo();
   } else if ( op == Operate::ListDD ) {
-    IO::ListAllDD(user);
+    user.ListAllDD();
   } else if ( op == Operate::RenameDD ) {
     IO::PrintRenameInfo(user.GetCurrentDD().GetName());
     std::string name;
@@ -177,10 +178,16 @@ void Editor::OperateDogDoing(Operate op, std::string str) {
   } else if ( op == Operate::User ) {
     control = Control::User;
     IO::PrintUser();
+    std::vector<std::string> users_name;
+    for ( int i = 0; i < num_of_user; i++ ) {
+      users_name.push_back(users[i].GetUserName());
+    }
+    IO::ListAllUser(users_name, curr_user);
   } else if ( op == Operate::Backpack ) {
     control = Control::Backpack;
     IO::PrintSwitchBackpack();
-    IO::ListBackpack(user.GetUserName(), user.GetUserBackpack());
+    std::vector<std::string> backpack;
+    user.ListBackpack();
   }
   
   else {
@@ -208,7 +215,7 @@ void Editor::OperateShop(Operate op, std::string str) {
     if ( ConfirmIndex(product) == false ) {
       IO::PrintBuyError();
     } else {
-      IO::PrintBuyInfo(shop.GetProduct(product));
+      IO::PrintBuyInfo(shop.GetProduct(product)->InfoPackage());
       control = Control::Buy;
     }
   }
@@ -247,7 +254,7 @@ void Editor::OperateUser(Operate op, std::string str) {
   } else if ( op == Operate::Unknown ) {
     IO::PrintInputError(str);
   } else if ( op == Operate::ListUser ) {
-    IO::ListAllUser(users, curr_user);
+    IO::ListAllUser(GetUserNameArray(), curr_user);
   } else if ( op == Operate::BacktoDD ) {
     IO::PrintBacktoDD();
     control = Control::DogDoing;
@@ -260,7 +267,7 @@ void Editor::OperateUser(Operate op, std::string str) {
     control = Control::DelUser;
   } else if ( op == Operate::SwitchUser ) {
     if ( switch_user_index - 1 < 0 ||
-         switch_user_index - 1 >= users.size() ) {
+         static_cast<std::size_t>(switch_user_index - 1) >= users.size() ) {
       IO::PrintSwitchUserError();
       switch_user_index = -1;
       return;
@@ -285,7 +292,7 @@ void Editor::OperateDelUser(Operate op, std::string str) {
     }
     IO::PrintDelUser(user_name);
     users.erase(users.begin() + curr_user);
-    if ( curr_user >= users.size() - 1) {
+    if ( static_cast<std::size_t>(curr_user) >= users.size() - 1) {
       curr_user = users.size() - 1;
     }
     control = Control::User;
@@ -317,6 +324,14 @@ void Editor::OperateBackpack(Operate op, std::string str) {
 void Editor::SetUpShop() {
   shop.AddProduct(new ProductDD());
   shop.AddProduct(new ProductHealPotion());
+}
+
+std::vector<std::string> Editor::GetUserNameArray() const {
+  std::vector<std::string> names;
+  for ( User user : users ) {
+    names.push_back(user.GetUserName());
+  }
+  return names;
 }
 
 void Editor::Run() {

@@ -1,5 +1,6 @@
 #include "../include/IO.h"
 
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
 
@@ -7,6 +8,7 @@
 #include "../include/Item.h"
 #include "../include/Product.h"
 #include "../include/User.h"
+
 
 void IO::PrintDot(int dot) {
   for ( int i = 0; i < dot; i++ ) {
@@ -44,7 +46,7 @@ void IO::PrintUserSetUp(const std::string& name, const int& id) {
   Divider();
 }
 
-void IO::PrintDDSetUp(const DogDoing& dd) {
+void IO::PrintDDSetUp(DDtitleInfo dd) {
   std::cout << "獲得刀盾 : ";
   PrintDDtitle(dd);
   std::cout << std::endl;
@@ -54,17 +56,17 @@ void IO::FirstDD() {
   std::cout << "獲得第一隻刀盾!!" << std::endl;
 }
 
-void IO::PrintDDInfo(const DogDoing& dd) {
+void IO::PrintDDInfo(DDinfo dd) {
   PrintDot(9);
   std::cout << std::fixed << std::setprecision(1);
   std::cout << "當前刀盾：" << std::endl;
   Divider();
-  PrintDDtitle(dd);
+  PrintDDtitle(dd.title);
   std::cout << std::endl;
   Divider();
-  std::cout << "  HP  : " << dd.GetHp() << " / " << dd.GetMaxHp() << std::endl;
-  std::cout << "  ATK : " << dd.GetATK() << std::endl;
-  std::cout << "  MP  : " << dd.GetMp() << " / " << dd.GetMaxMp() << std::endl;
+  std::cout << "  HP  : " << dd.hp << " / " << dd.max_hp << std::endl;
+  std::cout << "  ATK : " << dd.attack << std::endl;
+  std::cout << "  MP  : " << dd.mp << " / " << dd.max_mp << std::endl;
   Divider();
   PrintDot(1);
 }
@@ -123,23 +125,24 @@ void IO::PrintHelpDD(std::string name) {
   std::cout << "U / User  | 進入使用者介面" << std::endl;
 }
 
-void IO::ListAllDD(User& user) {
+void IO::ListAllDD(std::vector<DDtitleInfo> dd, std::string name, int index) {
   PrintDot(7);
   Divider();
-  std::cout << user.GetUserName() << "的刀盾：";
+  int n = dd.size();
+  std::cout << name << "的刀盾：";
   std::cout << "       (輸入數字可切換至對應刀盾)" << std::endl;
   Divider();
   std::cout << "No.   | Rank  | Level | Name " << std::endl;
   Divider();
-  for ( int i = 0; i < user.GetNumOfDD(); i++ ) {
+  for ( int i = 0; i < n; i++ ) {
     std::cout << i + 1;
-    if ( i == user.GetCurrDDIndex() ) {
+    if ( i == index - 1 ) {
       std::cout << "  > ";
     } else {
       std::cout << "    ";
     }
     std::cout << " | ";
-    PrintDDtitle(user.GetDD(i));
+    PrintDDtitle(dd[i]);
     std::cout << std::endl;
   }
 }
@@ -149,15 +152,15 @@ void IO::PrintRenameInfo(std::string name) {
   std::cout << "更改 " << name << " 的名稱為：" << std::endl;
 }
 
-void IO::PrintRenameSuccess(const DogDoing& dd) {
+void IO::PrintRenameSuccess(DDinfo dd) {
   std::cout << "改名成功" << std::endl;
   PrintDDInfo(dd);
 }
 
-void IO::PrintDDtitle(const DogDoing& dd) {
-  PrintRank(dd.GetRank());
+void IO::PrintDDtitle(DDtitleInfo title) {
+  PrintRank(title.rank);
   std::cout << " | LV." << std::setfill('0') << std::setw(2) 
-            << dd.GetLevel() << " | " << dd.GetName();
+            << title.level << " | " << title.name;
   std::cout << std::setfill(' ');
 }
 
@@ -167,20 +170,21 @@ void IO::PrintInputError(std::string str) {
   PrintHelpHint();
 }
 
-void IO::PrintProduct(const Product& product) {
+void IO::PrintProduct(ProductInfo pd) {
   std::cout << " $"  << std::setw(4)
-            << product.GetPrice() << "  | " << product.GetName();
+            << pd.price << "  | " << pd.name;
 }
 
-void IO::ListProduct(const std::vector<Product*>& products, int coin) {
+void IO::ListProduct(const std::vector<ProductInfo>& products, int coin) {
   std::cout << "持有金幣 : $" << coin << std::endl;
   std::cout << "輸入商品編號購買" << std::endl;
   Divider();
   std::cout << "No. |  Price  | Name "<< std::endl;
   Divider();
-  for ( int i = 0; i < products.size(); i++ ) {
+  int n = products.size();
+  for ( int i = 0; i < n; i++ ) {
     std::cout << i + 1 << "   | " ;
-    products[i]->PrintProduct();
+    PrintProduct(products[i]);
     std::cout << std::endl;
   }
 }
@@ -206,19 +210,19 @@ void IO::PrintNotEnoughCoin() {
   std::cout << "coin不足! " << std::endl;
 }
 
-void IO::PrintUserInfo(const User& user) {
+void IO::PrintUserInfo(UserInfo user) {
   PrintDot(9);
   Divider();
-  std::cout << user.GetUserName() << std::endl;
+  std::cout << user.name << std::endl;
   Divider();
-  std::cout << "刀盾數量 : " << user.GetNumOfDD() << std::endl;
-  std::cout << "持有coin : $" << user.GetCoin() << std::endl;
+  std::cout << "刀盾數量 : " << user.num_of_dd << std::endl;
+  std::cout << "持有coin : $" << user.coin << std::endl;
 }
 
-void IO::PrintBuySuccess(const User& user, Product* product) {
+void IO::PrintBuySuccess(std::string name, ProductInfo product) {
   PrintDot(9);
   Divider();
-  std::cout << user.GetUserName() << "成功購買 : " << product->GetName() << std::endl;
+  std::cout << name << "成功購買 : " << product.name << std::endl;
 }
 
 void IO::PrintBuyHelp() {
@@ -230,11 +234,11 @@ void IO::PrintBuyHelp() {
   std::cout << "N / no    | 取消購買" << std::endl;
 }
  
-void IO::PrintBuyInfo(Product* product) {
+void IO::PrintBuyInfo(ProductInfo product) {
   PrintDot(9);
   Divider();
-  std::cout << "確認花費 $" << product->GetPrice()
-            << " 購買 " << product->GetName() << " ? ( Y / N )" << std::endl;
+  std::cout << "確認花費 $" << product.price
+            << " 購買 " << product.name << " ? ( Y / N )" << std::endl;
 }
 
 void IO::PrintBuyCancel() {
@@ -255,10 +259,10 @@ void IO::PrintSwitchDDError() {
   std::cout << "找不到這個刀盾" << std::endl;
 }
 
-void IO::PrintSwitchDDSuccess(DogDoing& dd) {
+void IO::PrintSwitchDDSuccess(std::string name) {
   PrintDot(9);
   Divider();
-  std::cout << "已切換至" << dd.GetName() << std::endl;
+  std::cout << "已切換至" << name << std::endl;
 }
 
 void IO::PrintShop() {
@@ -293,7 +297,7 @@ void IO::PrintSetUserName(std::string name) {
   std::cout << "更改User : " << name << " 的名稱為 : " << std::endl;
 }
 
-void IO::ListAllUser(std::vector<User>& users, int index) {
+void IO::ListAllUser(std::vector<std::string> users, int index) {
   int n = users.size();
   PrintDot(9);
   Divider();
@@ -309,7 +313,7 @@ void IO::ListAllUser(std::vector<User>& users, int index) {
     } else {
       std::cout << "    | ";
     }
-    std::cout << users[i].GetUserName() << std::endl;
+    std::cout << users[i] << std::endl;
   }
 }
 
@@ -370,7 +374,7 @@ void IO::PrintBuyDone(std::string name) {
   std::cout << "已購買 : " << name << std::endl;
 }
 
-void IO::ListBackpack(std::string user, const std::vector<Item*>& item) {
+void IO::ListBackpack(std::string user, std::vector<std::string>& item) {
   PrintDot(9);
   Divider();
   std::cout << user + "的背包 : " << std::endl;
@@ -381,7 +385,7 @@ void IO::ListBackpack(std::string user, const std::vector<Item*>& item) {
   }
   for ( int i = 0; i < n; i ++ ) {
     std::cout << i + 1 << "  | ";
-    std::cout << item[i]->GetName() << std::endl;
+    std::cout << item[i] << std::endl;
   }
 }
 

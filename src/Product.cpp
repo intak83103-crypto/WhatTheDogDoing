@@ -20,5 +20,9 @@ int Product::GetPrice() const {
 }
 
 void Product::PrintProduct() {
-  IO::PrintProduct(*this);
+  IO::PrintProduct(InfoPackage());
+}
+
+ProductInfo Product::InfoPackage() const {
+  return {name, price};
 }

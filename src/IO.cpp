@@ -56,17 +56,19 @@ void IO::FirstDD() {
   std::cout << "獲得第一隻刀盾!!" << std::endl;
 }
 
-void IO::PrintDDInfo(DDinfo dd) {
+void IO::PrintDDInfo(DDInfo info) {
+  CreatureInfo dd = info.property;
   PrintDot(9);
   std::cout << std::fixed << std::setprecision(1);
   std::cout << "當前刀盾：" << std::endl;
   Divider();
-  PrintDDtitle(dd.title);
+  PrintDDtitle(info.title);
   std::cout << std::endl;
   Divider();
-  std::cout << "  HP  : " << dd.hp << " / " << dd.max_hp << std::endl;
-  std::cout << "  ATK : " << dd.attack << std::endl;
-  std::cout << "  MP  : " << dd.mp << " / " << dd.max_mp << std::endl;
+  std::cout << "  HP    : " << dd.hp << " / " << dd.max_hp << std::endl;
+  std::cout << "  ATK   : " << dd.attack << std::endl;
+  std::cout << "  MP    : " << dd.mp << " / " << dd.max_mp << std::endl;
+  std::cout << "  SPEED : " << dd.speed << std::endl;
   Divider();
   PrintDot(1);
 }
@@ -152,7 +154,7 @@ void IO::PrintRenameInfo(std::string name) {
   std::cout << "更改 " << name << " 的名稱為：" << std::endl;
 }
 
-void IO::PrintRenameSuccess(DDinfo dd) {
+void IO::PrintRenameSuccess(DDInfo dd) {
   std::cout << "改名成功" << std::endl;
   PrintDDInfo(dd);
 }
@@ -422,4 +424,9 @@ void IO::HelpBackpack() {
   std::cout << "L / List  | 列出所有背包物品 " << std::endl;
   std::cout << "          | 輸入數字使用物品" << std::endl;
   std::cout << "b / back  | 回到刀盾頁面" << std::endl;    
+}
+
+void IO::HealSuccess(std::string name, int hp) {
+  std::cout << std::endl;
+  std::cout << name << " 目前血量  : " << hp << std::endl;
 }

@@ -9,14 +9,22 @@ struct DDtitleInfo{
   int level;
 };
 
-struct DDinfo{
-  DDtitleInfo title;
+
+struct CreatureInfo{
   double hp;
   double max_hp;
   double mp;
   double max_mp;
   double attack;
+  int speed;
+  std::string name;
 };
+
+struct DDInfo{
+  DDtitleInfo title;
+  CreatureInfo property;
+};
+
 
 struct ProductInfo{
   std::string name;

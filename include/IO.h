@@ -16,7 +16,7 @@ public:
   static void PrintUserSetUp(const std::string& name, const int& id);
   static void PrintDDSetUp(DDtitleInfo dd);
   static void FirstDD();
-  static void PrintDDInfo(DDinfo dd);
+  static void PrintDDInfo(DDInfo dd);
   static void PrintRank(int rank);
   static void EditorStart();
   static void PrintOperateWating();
@@ -25,7 +25,7 @@ public:
   static void PrintHelpDD(std::string name);
   static void ListAllDD(std::vector<DDtitleInfo> dd, std::string name, int index);
   static void PrintRenameInfo(std::string name);
-  static void PrintRenameSuccess(DDinfo dd);
+  static void PrintRenameSuccess(DDInfo dd);
   static void PrintDDtitle(DDtitleInfo title);
   static void PrintInputError(std::string str);
   static void PrintProduct(ProductInfo pd);
@@ -61,6 +61,7 @@ public:
   static void PrintQuitBack();
   static void UseItemError();
   static void HelpBackpack();
+  static void HealSuccess(std::string name, int hp);
 };
 
 #endif

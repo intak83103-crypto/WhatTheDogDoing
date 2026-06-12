@@ -7,6 +7,7 @@ SRCS = main.cpp \
        src/Item.cpp \
        src/Product.cpp \
        src/Shop.cpp \
+       src/Creature.cpp \
        src/DogDoing.cpp \
        src/User.cpp \
        src/Items.cpp \
@@ -14,6 +15,7 @@ SRCS = main.cpp \
        src/Editor.cpp
 
 all:
+	@clear 2>/dev/null || true
 	$(CXX) $(CXXFLAGS) $(SRCS) -o $(TARGET)
 
 clean:

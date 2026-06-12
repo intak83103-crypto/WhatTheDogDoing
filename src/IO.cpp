@@ -67,7 +67,6 @@ void IO::PrintDDInfo(DDInfo info) {
   Divider();
   std::cout << "  HP    : " << dd.hp << " / " << dd.max_hp << std::endl;
   std::cout << "  ATK   : " << dd.attack << std::endl;
-  std::cout << "  MP    : " << dd.mp << " / " << dd.max_mp << std::endl;
   std::cout << "  SPEED : " << dd.speed << std::endl;
   Divider();
   PrintDot(1);
@@ -466,4 +465,10 @@ void IO::PrintBackToBackpack() {
   Divider();
   std::cout << "取消使用" << std::endl;
   std::cout << std::endl;
+}
+
+void IO::PrintSkillSelectError() {
+  PrintDot(9);
+  Divider();
+  std::cout << "沒有這個技能" << std::endl;
 }

@@ -13,7 +13,6 @@ private:
     int level;
     int need_exp;
     int max_hp;
-    int max_mp;
     int attack;
   };
   static const std::vector<LevelData> level_table;

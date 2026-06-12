@@ -6,6 +6,7 @@
 
 #include "DogDoing.h"
 #include "Item.h"
+#include "skill.h"
 
 class User {
 private:
@@ -13,6 +14,7 @@ private:
     ItemType type;
     int count;
   };
+  std::vector<SkillID> skill_list;
   std::string name;
   int id;
   int curr_dd = -1;

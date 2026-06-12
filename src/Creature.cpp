@@ -1,15 +1,13 @@
 #include "../include/Creature.h"
+#include "../include/IO.h"
 
 Creature::Creature(CreatureInfo info) {
   name = info.name;
   hp = info.hp;
   max_hp = info.max_hp;
-  mp = info.mp;
-  max_mp = info.max_mp;
   attack = info.attack;
   speed = info.speed;
   element = info.element;
-  ult_type = info.ult_type;
   ult_energy = info.ult_energy;
   max_ult_energy = info.max_ult_energy;
 }
@@ -30,20 +28,12 @@ int Creature::GetHp() const {
   return hp;
 }
 
-int Creature::GetMp() const {
-  return mp;
-}
-
 int Creature::GetSpeed() const {
   return speed;
 }
 
 int Creature::GetMaxHp() const {
   return max_hp;
-}
-
-int Creature::GetMaxMp() const {
-  return max_mp;
 }
 
 void Creature::SetName(std::string name) {
@@ -61,13 +51,10 @@ CreatureInfo Creature::GetCreatureInfo() const{
   return {
     hp,
     max_hp,
-    mp,
-    max_mp,
     attack,
     speed,
     name,
     element,
-    ult_type,
     ult_energy,
     max_ult_energy
   };
@@ -83,14 +70,6 @@ void Creature::SetHp(int hp) {
 
 void Creature::SetMaxHp(int max_hp) {
   this->max_hp = max_hp;
-}
-
-void Creature::SetMaxMp(int max_mp) {
-  this->max_mp = max_mp;
-}
-
-void Creature::SetMp(int mp) {
-  this->mp = mp;
 }
 
 void Creature::SetSpeed(int speed) {
@@ -117,9 +96,6 @@ Element Creature::GetElement() const {
   return element;
 }
 
-UltType Creature::GetUltType() const {
-  return ult_type;
-}
 
 int Creature::GetUltEnergy() const {
   return ult_energy;
@@ -129,17 +105,11 @@ int Creature::GetMaxUltEnergy() const {
   return max_ult_energy;
 }
 
-bool Creature::CanUseUlt() const {
-  return ult_type != NoUlt && ult_energy >= max_ult_energy;
-}
-
 void Creature::SetElement(Element element) {
   this->element = element;
 }
 
-void Creature::SetUltType(UltType ult_type) {
-  this->ult_type = ult_type;
-}
+
 
 void Creature::SetMaxUltEnergy(int max_ult_energy) {
   this->max_ult_energy = max_ult_energy;
@@ -160,4 +130,19 @@ void Creature::AddUltEnergy(int value) {
 
 void Creature::UseUltEnergy() {
   ult_energy = 0;
+}
+
+void Creature::AddSkill(SkillID skill) {
+  skill_list[num_of_skill++] = skill;
+}
+
+bool Creature::DeleteSKill(int index) {
+  index--;
+  if ( index < 0 || index > 3 || skill_list[index] == SkillID::None) {
+    IO::PrintSkillSelectError();
+    return false;
+  }
+  skill_list[index - 1] = SkillID::None;
+  num_of_skill--;
+  return true;
 }

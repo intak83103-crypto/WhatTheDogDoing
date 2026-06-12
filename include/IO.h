@@ -65,6 +65,7 @@ public:
   static void PrintSelectDD(std::vector<DDtitleInfo> dd, std::string item);
   static void HelpSelecttargetDD();
   static void PrintBackToBackpack();
+  static void PrintSkillSelectError();
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define CREATURE_H
 
 #include <string>
+#include <vector>
 #include "DisplayData.h"
 
 
@@ -9,12 +10,11 @@
 class Creature{
 private:
   Element element = None;
-  UltType ult_type = NoUlt;
+  SkillID skill_list[3] = {SkillID::None, SkillID::None, SkillID::None};
+  int num_of_skill = 0;
   std::string name;
   int hp = 0;
   int max_hp = 0;
-  int mp = 0;
-  int max_mp = 0;
   int attack = 0;
   int speed = 0;
   int hit_rate = 90;             // 命中率
@@ -31,14 +31,10 @@ public:
   std::string GetName() const;
   int GetATK() const;
   int GetHp() const;
-  int GetMp() const;
   int GetSpeed() const;
   int GetMaxHp() const;
-  int GetMaxMp() const;
   void SetHp(int hp);
   void SetMaxHp(int max_hp);
-  void SetMp(int mp);
-  void SetMaxMp(int max_mp);
   void SetATK(int atk);
   void SetSpeed(int speed);
   virtual void PrintInfo() const = 0;
@@ -51,15 +47,16 @@ public:
   int GetDodgeRate() const;
   int GetDamageIncrease() const;
   Element GetElement() const;
-  UltType GetUltType() const;
   int GetUltEnergy() const;
   int GetMaxUltEnergy() const;
   bool CanUseUlt() const;
   void SetElement(Element element);
-  void SetUltType(UltType ult_type);
   void SetMaxUltEnergy(int max_ult_energy);
   void AddUltEnergy(int value);
   void UseUltEnergy();
+  void AddSkill(SkillID skill);
+  void UseSkill(SkillID skill);
+  bool DeleteSKill(int index);
 };
 
 

@@ -3,11 +3,11 @@
 #include <cstddef>
 
 const std::vector<DogDoing::LevelData> DogDoing::level_table = {
-  {1, 0, 50, 3, 10},
-  {2, 20, 60, 4, 13},
-  {3, 50, 75, 5, 17},
-  {4, 90, 95, 6, 22},
-  {5, 140, 120, 8, 30}
+  {1, 0, 50, 10},
+  {2, 20, 60, 13},
+  {3, 50, 75, 17},
+  {4, 90, 95, 22},
+  {5, 140, 120, 30}
 };
 
 
@@ -16,21 +16,16 @@ void DogDoing::Init() {
   level = 1;
   SetHp(50);
   SetMaxHp(50);
-  SetMp(3);
-  SetMaxMp(3);
   SetATK(10);
   SetSpeed(10);
-  SetUltType(PowerUlt);
   exp = 0;
 }
 
 void DogDoing::ApplyLevelData() {
   const LevelData& data = level_table[level - 1];
   SetMaxHp(data.max_hp);
-  SetMaxMp(data.max_mp);
   SetATK(data.attack);
   SetHp(GetMaxHp());
-  SetMp(GetMaxMp());
 }
 
 DogDoing::DogDoing() {}

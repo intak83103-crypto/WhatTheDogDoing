@@ -2,14 +2,7 @@
 #define DISPLAY_DATA_H
   
 #include <string>
-
-enum Element{
-  Fire, Water, Thunder, Grass, None
-};
-
-enum UltType{
-  PowerUlt, HealUlt, NoUlt
-};
+#include "skill.h"
 
 struct DDtitleInfo{
   std::string name;
@@ -17,17 +10,17 @@ struct DDtitleInfo{
   int level;
 };
 
+enum Element{
+  Fire, Water, Thunder, Grass, Dark, None
+};
 
 struct CreatureInfo{
   int hp;
   int max_hp;
-  int mp;
-  int max_mp;
   int attack;
   int speed;
   std::string name;
   Element element;
-  UltType ult_type;
   int ult_energy;
   int max_ult_energy;
 };

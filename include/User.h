@@ -5,13 +5,12 @@
 #include <vector>
 
 #include "DogDoing.h"
-
-class Item;
+#include "Item.h"
 
 class User {
 private:
   struct BackpackSlot{
-    Item* item;
+    ItemType type;
     int count;
   };
   std::string name;
@@ -25,7 +24,6 @@ private:
 public:
   User();
   explicit User(std::string name, int id);
-  ~User();
 
   int GetNumOfDD() const;
   DogDoing& GetCurrentDD();
@@ -40,11 +38,11 @@ public:
   bool PayCoin(int price);
   void PrintInfo() const;
   void SwitchDD(int index);
-  void GetItem(Item* item);
+  void GetItem(ItemType type);
   void ListBackpack(bool divider = true);
   void DeleteItem(int index);
   void UseItem(int index, int target_dd = -1);
-  Item* GetItemOfBackpack(int index);
+  ItemType GetItemOfBackpack(int index);
   void ListAllDD() const;
   bool BackpackIndexCheck(int index) const;
   bool DogDoingIndexCheck(int index) const;

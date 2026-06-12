@@ -1,35 +1,34 @@
 #include "../include/Item.h"
 
 #include "../include/IO.h"
-#include "../include/User.h" 
+#include "../include/User.h"
 
-
-Item::Item() {}
-
-Item::Item(std::string name, ItemType type, ItemTargetType target) {
-  this->name = name;
-  this->type = type;
-  this->target = target;
+ItemInfo ItemDatabase::GetInfo(ItemType type) {
+  if ( type == ItemType::HealPotion ) {
+    return {
+      ItemType::HealPotion,
+      ItemTargetType::DogDoing,
+      "治療藥水",
+      "可使用在刀盾身上，每次回復 20HP"
+    };
+  }
+  return {
+    ItemType::None,
+    ItemTargetType::None,
+    "未知道具",
+    ""
+  };
 }
 
-Item::~Item() {}
-
-std::string Item::GetName() {
-  return name;
-}
-
-
-ItemType Item::GetItemType() const {
-  return type;
-}
-
-ItemTargetType Item::GetItemTargetType() const {
-  return target;
-}
-
-const std::string& Item::GetDetail() {
-  return detail;
-}
-void Item::SetDetail(const std::string& detail) {
-  this->detail = detail;
+void ItemDatabase::UseItem(User& user, ItemType type, int target) {
+  if ( type == ItemType::HealPotion ) {
+    DogDoing* dd = user.GetIndexOfDD(target);
+    if ( dd == nullptr ) {
+      return;
+    }
+    dd->Heal(20);
+    CreatureInfo info = dd->GetCreatureInfo();
+    IO::UseItem(GetInfo(type).name);
+    IO::HealSuccess(info.name, info.hp);
+  }
 }

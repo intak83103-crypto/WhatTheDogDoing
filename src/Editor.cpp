@@ -12,8 +12,7 @@ void Editor::NewUser() {
   IO::PrintNewUser();
   IO::GetToken(user_name);
   num_of_user += 1;
-  User user(user_name, num_of_user);
-  users.push_back(user);
+  users.emplace_back(user_name, num_of_user);
   curr_user = users.size() - 1;
 }
 
@@ -326,13 +325,13 @@ void Editor::OperateBackpack(Operate op, std::string str) {
   } else if ( op == Operate::ListBackpack ) {
     user.ListBackpack();
   } else if ( op == Operate::UseItem ) {
-    Item* item = user.GetItemOfBackpack(use_item_of_bp);
-    if ( item != nullptr ) {
-      if ( item->GetItemTargetType() == ItemTargetType::DogDoing ) {
-        control = Control::SelectTargetDD;
-        IO::PrintSelectDD(user.GetAllDDtitleInfo(), item->GetName());
-        return;
-      }
+    ItemType type = user.GetItemOfBackpack(use_item_of_bp);
+    ItemInfo info = ItemDatabase::GetInfo(type);
+    if ( type != ItemType::None &&
+         info.target == ItemTargetType::DogDoing ) {
+      control = Control::SelectTargetDD;
+      IO::PrintSelectDD(user.GetAllDDtitleInfo(), info.name);
+      return;
     }
     user.UseItem(use_item_of_bp);
     use_item_of_bp = -1;
@@ -366,7 +365,7 @@ void Editor::SetUpShop() {
 
 std::vector<std::string> Editor::GetUserNameArray() const {
   std::vector<std::string> names;
-  for ( User user : users ) {
+  for ( const User& user : users ) {
     names.push_back(user.GetUserName());
   }
   return names;

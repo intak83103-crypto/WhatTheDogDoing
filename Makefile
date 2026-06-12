@@ -10,7 +10,6 @@ SRCS = main.cpp \
        src/Creature.cpp \
        src/DogDoing.cpp \
        src/User.cpp \
-       src/Items.cpp \
        src/Products.cpp \
        src/Editor.cpp
 

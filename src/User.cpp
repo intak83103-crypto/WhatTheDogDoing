@@ -3,7 +3,6 @@
 #include <cstddef>
 
 #include "../include/IO.h"
-#include "../include/Item.h"
 
 User::User() {}
 
@@ -18,13 +17,6 @@ User::User(std::string name, int id) {
   curr_dd = 0;
   coin = 200;
   backpack = {};
-}
-
-User::~User() {
-  int n = backpack.size();
-  for ( int i = 0; i < n; i++ ) {
-    delete backpack[i].item;
-  }
 }
 
 int User::GetNumOfDD() const {
@@ -90,23 +82,23 @@ void User::SwitchDD(int index) {
   IO::PrintSwitchDDSuccess(dogdoings[curr_dd].GetName());
 }
 
-void User::GetItem(Item* item) {
+void User::GetItem(ItemType type) {
   int n = backpack.size();
   for ( int i = 0; i < n; i ++ ) {
-    if ( backpack[i].item->GetItemType() == item->GetItemType() ) {
+    if ( backpack[i].type == type ) {
       backpack[i].count += 1;
-      delete item;
       return;
     }
   }
-  backpack.push_back({item, 1});
+  backpack.push_back({type, 1});
 }
 
 void User::ListBackpack(bool divider) {
   std::vector<BackpackInfo> item;
   int n = backpack.size();
   for ( int i = 0; i < n; i++ ) {
-    item.push_back({backpack[i].item->GetName(), backpack[i].count});
+    ItemInfo info = ItemDatabase::GetInfo(backpack[i].type);
+    item.push_back({info.name, backpack[i].count});
   }
   IO::ListBackpack(name, item, divider);
 }
@@ -125,11 +117,7 @@ void User::UseItem(int index, int target_dd) {
   if ( target_dd != -1 && DogDoingIndexCheck(target_dd - 1) == false ) {
     return;
   }
-  if ( target_dd == -1 ) {
-    backpack[real_index].item->Use(*this);
-  } else {
-    backpack[real_index].item->Use(*this, target_dd);
-  }
+  ItemDatabase::UseItem(*this, backpack[real_index].type, target_dd);
 
   backpack[real_index].count -= 1;
 
@@ -138,15 +126,14 @@ void User::UseItem(int index, int target_dd) {
   }
 }
 void User::DeleteItem(int index) {
-  delete backpack[index].item;
   backpack.erase(backpack.begin() + index);
 }
-Item* User::GetItemOfBackpack(int index) {
+ItemType User::GetItemOfBackpack(int index) {
   index--;
   if ( BackpackIndexCheck(index) ) {
-    return backpack[index].item;
+    return backpack[index].type;
   }
-  return nullptr;
+  return ItemType::None;
 }
 
 void User::ListAllDD() const {

@@ -12,15 +12,16 @@ private:
   struct LevelData {
     int level;
     int need_exp;
-    double max_hp;
-    double max_mp;
-    double attack;
+    int max_hp;
+    int max_mp;
+    int attack;
   };
   static const std::vector<LevelData> level_table;
 
-  float exp;
+  int exp;
   int rank;
   int level;
+  int crit = 20;    // 爆擊機率：crit / 100， 傷害 x1.5
 
   void Init();
   void ApplyLevelData();
@@ -29,7 +30,7 @@ public:
   DogDoing();
   explicit DogDoing(int i);
   explicit DogDoing(std::string name);
-
+  int GetCrit() const;
   int GetLevel() const;
   int GetRank() const;
   void PrintInfo() const override;

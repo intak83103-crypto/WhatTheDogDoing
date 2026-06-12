@@ -4,6 +4,7 @@ CXXFLAGS = -std=c++17 -Wall -Wextra
 TARGET = main
 SRCS = main.cpp \
        src/IO.cpp \
+       src/Random.cpp \
        src/Item.cpp \
        src/Product.cpp \
        src/Shop.cpp \
@@ -11,7 +12,8 @@ SRCS = main.cpp \
        src/DogDoing.cpp \
        src/User.cpp \
        src/Products.cpp \
-       src/Editor.cpp
+       src/Editor.cpp \
+       src/Battle.cpp \
 
 all:
 	@clear 2>/dev/null || true

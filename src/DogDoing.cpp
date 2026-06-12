@@ -20,11 +20,17 @@ void DogDoing::Init() {
   SetMaxMp(3);
   SetATK(10);
   SetSpeed(10);
+  SetUltType(PowerUlt);
   exp = 0;
 }
 
 void DogDoing::ApplyLevelData() {
   const LevelData& data = level_table[level - 1];
+  SetMaxHp(data.max_hp);
+  SetMaxMp(data.max_mp);
+  SetATK(data.attack);
+  SetHp(GetMaxHp());
+  SetMp(GetMaxMp());
 }
 
 DogDoing::DogDoing() {}
@@ -75,4 +81,8 @@ DDInfo DogDoing::InfoPackage() const {
   DDtitleInfo title = TitlePackage();
   CreatureInfo property = GetCreatureInfo();
   return {title, property};
+}
+
+int DogDoing::GetCrit() const {
+  return crit;
 }

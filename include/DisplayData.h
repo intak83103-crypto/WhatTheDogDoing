@@ -3,6 +3,14 @@
   
 #include <string>
 
+enum Element{
+  Fire, Water, Thunder, Grass, None
+};
+
+enum UltType{
+  PowerUlt, HealUlt, NoUlt
+};
+
 struct DDtitleInfo{
   std::string name;
   int rank;
@@ -11,13 +19,17 @@ struct DDtitleInfo{
 
 
 struct CreatureInfo{
-  double hp;
-  double max_hp;
-  double mp;
-  double max_mp;
-  double attack;
+  int hp;
+  int max_hp;
+  int mp;
+  int max_mp;
+  int attack;
   int speed;
   std::string name;
+  Element element;
+  UltType ult_type;
+  int ult_energy;
+  int max_ult_energy;
 };
 
 struct DDInfo{

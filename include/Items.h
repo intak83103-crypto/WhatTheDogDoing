@@ -6,7 +6,8 @@
 class ItemHealPotion : public Item {
 public:
   ItemHealPotion();
-  void Use(User& user) override;
+  void Use(User& user, int target__dd) override;
+  void UsePrint(CreatureInfo info);
 };
 
 #endif

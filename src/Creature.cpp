@@ -11,7 +11,7 @@ Creature::Creature(CreatureInfo info) {
 }
 
 Creature::Creature() {
-    
+
 }
 
 std::string Creature::GetName() const {
@@ -51,7 +51,6 @@ void Creature::Heal(int heal) {
   if ( hp >= max_hp ) {
     hp = max_hp;
   }
-  PrintHealInfo();
 }
 
 CreatureInfo Creature::GetCreatureInfo() const{
@@ -80,8 +79,4 @@ void Creature::SetMp(double mp) {
 
 void Creature::SetSpeed(int speed) {
   this->speed = speed;
-}
-
-void Creature::PrintHealInfo() const{
-  return;
 }

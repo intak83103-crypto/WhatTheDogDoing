@@ -31,7 +31,6 @@ public:
   void SetATK(double atk);
   void SetSpeed(int speed);
   virtual void PrintInfo() const = 0;
-  virtual void PrintHealInfo() const;
   void SetName(std::string name);
   void Heal(int heal);
   CreatureInfo GetCreatureInfo() const;

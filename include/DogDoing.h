@@ -33,7 +33,6 @@ public:
   int GetLevel() const;
   int GetRank() const;
   void PrintInfo() const override;
-  void PrintHealInfo() const override;
   void AddExp(int value);
   DDtitleInfo TitlePackage() const;
   DDInfo InfoPackage() const;

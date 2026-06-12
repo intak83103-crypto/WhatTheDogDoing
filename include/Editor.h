@@ -9,7 +9,7 @@
 #include "DisplayData.h"
 
 enum class Control {
-  User, DogDoing, Shop, Buy, None, DelUser, Backpack
+  User, DogDoing, Shop, Buy, None, DelUser, Backpack, SelectTargetDD
 };
 
 enum class Operate {
@@ -18,7 +18,8 @@ enum class Operate {
   Shop, HelpShop, QuitShop, ListShop, GetUserInfo, Buy,
   HelpBuy, ConfirmBuy, CancelBuy,
   User, AddUser, DelUser, ReNameUser, QuitUser, ListUser, BacktoDD, SwitchUser,
-  ConfirmDelUser, CanCelDelUser, ConfirmDel, CanCelDel, HelpDelUser
+  ConfirmDelUser, CanCelDelUser, ConfirmDel, CanCelDel, HelpDelUser,
+  HelpSelectTargetDD, SelectTargetDD, BacktoBackpack
 };
 
 class Editor {
@@ -32,6 +33,7 @@ private:
   int switch_dd_index = -1;
   int switch_user_index = -1;
   int use_item_of_bp = -1;
+  int select_dd_index = -1;
 
   std::vector<std::string> GetUserNameArray() const;
   void NewUser();
@@ -46,8 +48,9 @@ private:
   void OperateUser(Operate op, std::string str);
   void OperateDelUser(Operate op, std::string str);
   void OperateBackpack(Operate op, std::string str);
+  void OperateSelectTargetDD(Operate op, std::string str);
   void SetUpShop();
-
+  
 public:
   void Run();
 };

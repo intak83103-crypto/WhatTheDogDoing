@@ -55,13 +55,16 @@ public:
   static void PrintSwitchUserError();
   static void PrintSwitchUser(std::string name);
   static void PrintBuyDone(std::string name);
-  static void ListBackpack(std::string user, std::vector<BackpackInfo>& backpack);
+  static void ListBackpack(std::string user, std::vector<BackpackInfo>& backpack, bool divider = false);
   static void PrintSwitchBackpack();
-  static void UseItem(std::string& name);
+  static void UseItem(std::string name);
   static void PrintQuitBack();
   static void UseItemError();
   static void HelpBackpack();
   static void HealSuccess(std::string name, int hp);
+  static void PrintSelectDD(std::vector<DDtitleInfo> dd, std::string item);
+  static void HelpSelecttargetDD();
+  static void PrintBackToBackpack();
 };
 
 #endif

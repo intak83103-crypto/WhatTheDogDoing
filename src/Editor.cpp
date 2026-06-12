@@ -5,6 +5,7 @@
 
 #include "../include/IO.h"
 #include "../include/Products.h"
+#include "../include/Item.h"
 
 void Editor::NewUser() {
   std::string user_name;
@@ -35,9 +36,9 @@ bool Editor::IsDigit(std::string str) {
   return true;
 }
 
-Operate Editor::GetOp(std::string op) {
+Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
   op = ToLower(op);
-  if ( control == Control::DogDoing ) {
+  if ( control == Control::DogDoing ) {     // 介面：刀盾
     if ( op == "help" || op == "h" ) {
       return Operate::HelpDD;
     } 
@@ -67,7 +68,7 @@ Operate Editor::GetOp(std::string op) {
       return Operate::Backpack;
     }
 
-  } else if ( control == Control::User ) {
+  } else if ( control == Control::User ) {    // 介面：使用者
     if ( op == "help" || op == "h" ) {
       return Operate::HelpUser;
     }
@@ -92,7 +93,7 @@ Operate Editor::GetOp(std::string op) {
     }
     
 
-  } else if ( control == Control::Shop ) {
+  } else if ( control == Control::Shop ) {    // 介面：商店
     if ( op == "help" || op == "h" ) {
       return Operate::HelpShop;
     } 
@@ -108,7 +109,7 @@ Operate Editor::GetOp(std::string op) {
     } 
 
 
-  } else if ( control == Control::Buy ) {
+  } else if ( control == Control::Buy ) {    // 介面：購買
     if ( op == "y" || op == "yes" ) {
       return Operate::ConfirmBuy;
     }
@@ -119,7 +120,7 @@ Operate Editor::GetOp(std::string op) {
       return Operate::CancelBuy;
 
     }
-  } else if ( control == Control::DelUser ) {
+  } else if ( control == Control::DelUser ) {   // 介面：刪除使用者
     if ( op == "h" || op == "help" ) {
       return Operate::HelpDelUser;
     } 
@@ -129,7 +130,7 @@ Operate Editor::GetOp(std::string op) {
     if ( op == "n" || op == "no" ) {
       return Operate::CanCelDelUser;
     }
-  } else if ( control == Control::Backpack ) {
+  } else if ( control == Control::Backpack ) {  // 介面：背包
     if ( op == "h" || op == "help" ) {
       return Operate::HelpBackpack;
     }
@@ -142,6 +143,15 @@ Operate Editor::GetOp(std::string op) {
     if ( IsDigit(op) ) {
       use_item_of_bp = std::stoi(op);
       return Operate::UseItem;
+    }
+  } else if ( control == Control::SelectTargetDD ) {     // 介面：使用需要選擇刀盾的物品
+    if ( op == "h" || op == "help" ) {
+      return Operate::HelpSelectTargetDD;
+    } else if ( IsDigit(op) ) {
+      select_dd_index = std::stoi(op);
+      return Operate::SelectTargetDD;
+    } else if ( op == "b" || op == "back" ) {
+      return Operate::BacktoBackpack;
     }
   }
   return Operate::Unknown;
@@ -316,10 +326,38 @@ void Editor::OperateBackpack(Operate op, std::string str) {
   } else if ( op == Operate::ListBackpack ) {
     user.ListBackpack();
   } else if ( op == Operate::UseItem ) {
+    Item* item = user.GetItemOfBackpack(use_item_of_bp);
+    if ( item != nullptr ) {
+      if ( item->GetItemTargetType() == ItemTargetType::DogDoing ) {
+        control = Control::SelectTargetDD;
+        IO::PrintSelectDD(user.GetAllDDtitleInfo(), item->GetName());
+        return;
+      }
+    }
     user.UseItem(use_item_of_bp);
     use_item_of_bp = -1;
   }
 }
+
+  void Editor::OperateSelectTargetDD(Operate op, std::string str) {
+    User& user = users[curr_user];
+    if ( op == Operate::Unknown ) {
+      IO::PrintInputError(str);
+    } else if ( op == Operate::HelpSelectTargetDD ) {
+      IO::HelpSelecttargetDD();
+    } else if ( op == Operate::BacktoBackpack ) {
+      select_dd_index = -1;
+      IO::PrintBackToBackpack();
+      user.ListBackpack(false);
+      control = Control::Backpack;
+    } else if ( op == Operate::SelectTargetDD ) {
+      user.UseItem(use_item_of_bp, select_dd_index);
+      
+      use_item_of_bp = -1;
+      select_dd_index = -1;
+      control = Control::Backpack;
+    }
+  }
 
 void Editor::SetUpShop() {
   shop.AddProduct(new ProductDD());
@@ -360,6 +398,8 @@ void Editor::Run() {
       OperateDelUser(op, str);
     } else if ( control == Control::Backpack ) {
       OperateBackpack(op, str);
+    } else if ( control == Control::SelectTargetDD ) {
+      OperateSelectTargetDD(op, str);
     }
   }
 }

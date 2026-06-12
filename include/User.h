@@ -5,7 +5,8 @@
 #include <vector>
 
 #include "DogDoing.h"
-#include "Item.h"
+
+class Item;
 
 class User {
 private:
@@ -30,6 +31,7 @@ public:
   DogDoing& GetCurrentDD();
   int GetCurrDDIndex() const;
   std::string GetUserName() const;
+  DogDoing* GetIndexOfDD(int index);
   void SetName();
   DogDoing& GetDD(int index);
   void AddDD();
@@ -39,11 +41,13 @@ public:
   void PrintInfo() const;
   void SwitchDD(int index);
   void GetItem(Item* item);
-  void ListBackpack();
+  void ListBackpack(bool divider = true);
   void DeleteItem(int index);
-  void UseItem(int index);
+  void UseItem(int index, int target_dd = -1);
   Item* GetItemOfBackpack(int index);
   void ListAllDD() const;
+  bool BackpackIndexCheck(int index) const;
+  bool DogDoingIndexCheck(int index) const;
   std::vector<DDtitleInfo> GetAllDDtitleInfo() const;
 };
 

@@ -3,6 +3,7 @@
 #include <cstddef>
 
 #include "../include/IO.h"
+#include "../include/Item.h"
 
 User::User() {}
 
@@ -101,26 +102,37 @@ void User::GetItem(Item* item) {
   backpack.push_back({item, 1});
 }
 
-void User::ListBackpack() {
+void User::ListBackpack(bool divider) {
   std::vector<BackpackInfo> item;
   int n = backpack.size();
   for ( int i = 0; i < n; i++ ) {
     item.push_back({backpack[i].item->GetName(), backpack[i].count});
   }
-  IO::ListBackpack(name, item);
+  IO::ListBackpack(name, item, divider);
 }
 
-void User::UseItem(int index) {
+void User::UseItem(int index, int target_dd) {
   int real_index = index - 1;
   if ( real_index < 0 ||
        static_cast<std::size_t>(real_index) >= backpack.size()  ) {
     IO::UseItemError();
     return;
   }
-  if ( backpack[real_index].count > 0 ) {
-    backpack[real_index].item->Use(*this);
-    backpack[real_index].count -= 1;
+  if ( backpack[real_index].count <= 0 ) {
+    DeleteItem(real_index);
+    return;
   }
+  if ( target_dd != -1 && DogDoingIndexCheck(target_dd - 1) == false ) {
+    return;
+  }
+  if ( target_dd == -1 ) {
+    backpack[real_index].item->Use(*this);
+  } else {
+    backpack[real_index].item->Use(*this, target_dd);
+  }
+
+  backpack[real_index].count -= 1;
+
   if ( backpack[real_index].count <= 0 ) {
     DeleteItem(real_index);
   }
@@ -130,13 +142,11 @@ void User::DeleteItem(int index) {
   backpack.erase(backpack.begin() + index);
 }
 Item* User::GetItemOfBackpack(int index) {
-  int real_index = index - 1;
-  if ( real_index < 0 ||
-       static_cast<std::size_t>(real_index) >= backpack.size()  ) {
-    IO::UseItemError();
-    return nullptr;
+  index--;
+  if ( BackpackIndexCheck(index) ) {
+    return backpack[index].item;
   }
-  return backpack[real_index].item;
+  return nullptr;
 }
 
 void User::ListAllDD() const {
@@ -149,4 +159,28 @@ std::vector<DDtitleInfo> User::GetAllDDtitleInfo() const {
     ddstitle.push_back(dd.TitlePackage());
   }
   return ddstitle;
+}
+
+DogDoing* User::GetIndexOfDD(int index) {
+  int real_index = index - 1;
+  if ( DogDoingIndexCheck(real_index) ) {
+    return &dogdoings[real_index];
+  }
+  return nullptr;
+}
+bool User::BackpackIndexCheck(int index) const {
+  int n = backpack.size();
+  if ( index < 0 || index >= n ) {
+    return false;
+  }
+  return true;
+}
+
+bool User::DogDoingIndexCheck(int index) const {
+  int n = dogdoings.size();
+  if ( index < 0 || index >= n ) {
+    IO::PrintSwitchDDError();
+    return false;
+  }
+  return true;
 }

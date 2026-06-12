@@ -376,9 +376,11 @@ void IO::PrintBuyDone(std::string name) {
   std::cout << "已購買 : " << name << std::endl;
 }
 
-void IO::ListBackpack(std::string user, std::vector<BackpackInfo>& backpack) {
-  PrintDot(9);
-  Divider();
+void IO::ListBackpack(std::string user, std::vector<BackpackInfo>& backpack, bool divider) {
+  if ( divider ) {
+    PrintDot(9);
+    Divider();
+  }
   std::cout << user + "的背包 : " << std::endl;
   Divider();
   int n = backpack.size();
@@ -398,7 +400,7 @@ void IO::PrintSwitchBackpack() {
   std::cout << "已切換至背包" << std::endl;
 }
 
-void IO::UseItem(std::string& name) {
+void IO::UseItem(std::string name) {
   PrintDot(9);
   Divider();
   std::cout << "已使用 : " << name << std::endl;
@@ -429,4 +431,39 @@ void IO::HelpBackpack() {
 void IO::HealSuccess(std::string name, int hp) {
   std::cout << std::endl;
   std::cout << name << " 目前血量  : " << hp << std::endl;
+}
+
+void IO::PrintSelectDD(std::vector<DDtitleInfo> dd, std::string item) {
+  PrintDot(9);
+  Divider();
+  std::cout << "選擇你要使用 " << item << " 的刀盾： " << std::endl;
+  Divider();
+  std::cout << "No.   | Rank  | Level | Name " << std::endl;
+  Divider();
+  int n = dd.size();
+  for ( int i = 0; i < n; i++ ) {
+    std::cout << i + 1;
+    std::cout << "    ";
+    std::cout << " | ";
+    PrintDDtitle(dd[i]);
+    std::cout << std::endl;
+  }
+
+
+}
+
+void IO::HelpSelecttargetDD() {
+  PrintDot(9);
+  Divider();
+  std::cout << "HELP!" << std::endl;
+  Divider();
+  std::cout << "          | 輸入刀盾編號使用物品" << std::endl;
+  std::cout << "b / Back  | 取消使用" << std::endl;
+}
+
+void IO::PrintBackToBackpack() {
+  PrintDot(9);
+  Divider();
+  std::cout << "取消使用" << std::endl;
+  std::cout << std::endl;
 }

@@ -76,7 +76,3 @@ DDInfo DogDoing::InfoPackage() const {
   CreatureInfo property = GetCreatureInfo();
   return {title, property};
 }
-
-void DogDoing::PrintHealInfo() const {
-  IO::HealSuccess(GetName(), GetHp());
-}

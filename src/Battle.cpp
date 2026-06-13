@@ -7,8 +7,9 @@
 #include "../include/Random.h"
 #include "../include/IO.h"
 
-Battle::Battle(User& user, DogDoing& dogdoing, Creature& enemy)
+Battle::Battle(User& user, DogDoing& dogdoing, Enemy& enemy)
     : user(user), dogdoing(dogdoing), enemy(enemy) {
+  SetElementBonus();
 }
 
 bool Battle::IsCrit(bool is_enemy) {
@@ -56,22 +57,25 @@ int Battle::CalculateDamage(int damage, bool is_enemy) {
   if ( is_enemy ) {
     final_damage = damage;
     final_damage = (final_damage + enemy_over_hit)
-        * (100 + enemy.GetDamageIncrease()) / 100;
+        * (100 + enemy.GetDamageIncrease() + damage_increase_of_enemy) / 100;
     SetOverHit(is_enemy, 0);
     return final_damage;
   }
 
   final_damage = damage;
   final_damage = (final_damage + dd_over_hit)
-      * (100 + dogdoing.GetDamageIncrease()) / 100;
+      * (100 + dogdoing.GetDamageIncrease() + damage_increase_of_dd) / 100;
   SetOverHit(is_enemy, 0);
   return final_damage;
 }
 
 void Battle::Run() {
+  IO::PrintBattleStart(dogdoing.GetName(), enemy.GetName());
   bool dd_first = dogdoing.GetSpeed() >= enemy.GetSpeed();
 
+
   while ( IsBattleOver() == false ) {
+    IO::PrintBattleTurnStart(turn);
     if ( dd_first ) {
       DDTurn();
       if ( IsBattleOver() == false ) {
@@ -85,10 +89,18 @@ void Battle::Run() {
     }
     turn++;
   }
+
+  IO::PrintBattleEnd();
+  if ( dogdoing.GetHp() <= 0 ) {
+    IO::PrintBattleLose();
+  } else {
+    IO::PrintBattleWin();
+  }
 }
 
 void Battle::DDTurn() {
   std::string op;
+  IO::PrintBattleRoundStart(dogdoing.GetName());
   while ( true ) {
     IO::GetToken(op);
     if ( IsDigit(op) ) {
@@ -96,6 +108,7 @@ void Battle::DDTurn() {
       SkillID skill_id = dogdoing.GetIndexOfSkillList(select_id);
 
       if ( skill_id == SkillID::None ) {
+        // 找不到skill
         continue;
       } else {
         SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id, dogdoing.GetATK());
@@ -104,14 +117,15 @@ void Battle::DDTurn() {
         return;
       }
     } else {
-      // 輸入錯誤
+      IO::PrintInputError(op);
     }
     
   }
 }
 
 void Battle::EnemyTurn() {
-  int use_skill = Random::RandomInt(1, 1);
+  IO::PrintBattleRoundStart(enemy.GetName());
+  int use_skill = Random::RandomInt(1, enemy.GetNumOfSkill());
   SkillID skill_id = SkillID::None;
   if ( use_skill == 1 ) {
     skill_id = enemy.GetIndexOfSkillList(1);
@@ -129,19 +143,27 @@ bool Battle::IsBattleOver() const {
 void Battle::SkillEffectApply(bool is_enemy, SkillDetail skill_detail) {
   int value = skill_detail.value;
   SkillEffect effect = skill_detail.effect;
+  if ( is_enemy ) {
+    IO::PrintUseSkill(enemy.GetName(), skill_detail.name);
+  } else {
+    IO::PrintUseSkill(dogdoing.GetName(), skill_detail.name);
+  }
   if ( effect == SkillEffect::Attack ) {
     if ( IsHit(is_enemy) ) {
       value = CalculateDamage(value, is_enemy);
       if ( IsCrit(is_enemy) ) {
         value = value * 150 / 100;
+        IO::PrintBattleCrit();
       }
       if ( is_enemy ) {
         dogdoing.MinusHp(value);
+        IO::PrintBattleDamage(enemy.GetName(), dogdoing.GetName(), value);
       } else {
         enemy.MinusHp(value);
+        IO::PrintBattleDamage(dogdoing.GetName(), enemy.GetName(), value);
       }
     } else {
-      // 未命中
+      IO::PrintBattleDoesNotHit();
     }
   } else if ( effect == SkillEffect::Heal ) {
     if ( is_enemy ) {
@@ -170,5 +192,42 @@ void Battle::SetTempAtk(bool is_enemy) {
     
   } else {
 
+  }
+}
+
+void Battle::SetElementBonus() {
+  Element dd_element = dogdoing.GetElement();
+  Element enemy_element = enemy.GetElement();
+  if ( dd_element == Element::Dark && enemy_element == Element::Thunder ) {
+    damage_increase_of_dd += 20;
+    damage_increase_of_enemy -= 20;
+  } else if ( dd_element == Element::Thunder && enemy_element == Element::Grass ) {
+    damage_increase_of_dd += 20;
+    damage_increase_of_enemy -= 20;
+  } else if ( dd_element == Element::Grass && enemy_element == Element::Fire ) {
+    damage_increase_of_dd += 20;
+    damage_increase_of_enemy -= 20;
+  } else if ( dd_element == Element::Fire && enemy_element == Element::Water ) {
+    damage_increase_of_dd += 20;
+    damage_increase_of_enemy -= 20;
+  } else if ( dd_element == Element::Water && enemy_element == Element::Dark ) {
+    damage_increase_of_dd += 20;
+    damage_increase_of_enemy -= 20;
+  }
+  if ( enemy_element == Element::Dark && dd_element == Element::Thunder ) {
+    damage_increase_of_dd -= 20;
+    damage_increase_of_enemy += 20;
+  } else if ( enemy_element == Element::Thunder && dd_element == Element::Grass ) {
+    damage_increase_of_dd -= 20;
+    damage_increase_of_enemy += 20;
+  } else if ( enemy_element == Element::Grass && dd_element == Element::Fire ) {
+    damage_increase_of_dd -= 20;
+    damage_increase_of_enemy += 20;
+  } else if ( enemy_element == Element::Fire && dd_element == Element::Water ) {
+    damage_increase_of_dd -= 20;
+    damage_increase_of_enemy += 20;
+  } else if ( enemy_element == Element::Water && dd_element == Element::Dark ) {
+    damage_increase_of_dd -= 20;
+    damage_increase_of_enemy += 20;
   }
 }

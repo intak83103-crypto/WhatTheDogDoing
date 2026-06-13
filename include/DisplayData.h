@@ -23,6 +23,7 @@ struct CreatureInfo{
   Element element;
   int ult_energy;
   int max_ult_energy;
+  int num_of_skill;
 };
 
 struct DDInfo{

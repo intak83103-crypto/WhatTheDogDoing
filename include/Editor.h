@@ -19,7 +19,8 @@ enum class Operate {
   HelpBuy, ConfirmBuy, CancelBuy,
   User, AddUser, DelUser, ReNameUser, QuitUser, ListUser, BacktoDD, SwitchUser,
   ConfirmDelUser, CanCelDelUser, ConfirmDel, CanCelDel, HelpDelUser,
-  HelpSelectTargetDD, SelectTargetDD, BacktoBackpack
+  HelpSelectTargetDD, SelectTargetDD, BacktoBackpack,
+  BattleTest
 };
 
 class Editor {

@@ -10,11 +10,13 @@ Creature::Creature(CreatureInfo info) {
   element = info.element;
   ult_energy = info.ult_energy;
   max_ult_energy = info.max_ult_energy;
+  num_of_skill = info.num_of_skill;
 }
 
 Creature::Creature() {
 
 }
+
 
 std::string Creature::GetName() const {
   return name;
@@ -56,7 +58,8 @@ CreatureInfo Creature::GetCreatureInfo() const{
     name,
     element,
     ult_energy,
-    max_ult_energy
+    max_ult_energy,
+    num_of_skill
   };
 }
 

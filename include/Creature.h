@@ -59,6 +59,7 @@ public:
   bool DeleteSKill(int index);
   SkillID GetIndexOfSkillList(int index) const;
   void MinusHp(int minus);
+  
 };
 
 

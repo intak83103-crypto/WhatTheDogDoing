@@ -66,6 +66,17 @@ public:
   static void HelpSelecttargetDD();
   static void PrintBackToBackpack();
   static void PrintSkillSelectError();
+  static void PrintBattleDoesNotHit();
+  static void PrintBattleDamage(std::string attacker, std::string defender, int damage);
+  static void PrintBattleTurnStart(int i);
+  static void PrintBattleCrit();
+  static void PrintUseSkill(std::string name, std::string skill_name);
+  static void PrintBattleRoundStart(std::string name);
+  static void PrintBattleStart(std::string user, std::string enemy);
+  static void PrintBattleEnd();
+  static void PrintBattleDDDie(std::string dd_name);
+  static void PrintBattleWin();
+  static void PrintBattleLose();
 };
 
 #endif

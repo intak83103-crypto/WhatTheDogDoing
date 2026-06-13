@@ -34,6 +34,7 @@ public:
   int GetRank() const;
   void PrintInfo() const override;
   void AddExp(int value);
+  void RanDomElement();
   DDtitleInfo TitlePackage() const;
   DDInfo InfoPackage() const;
   

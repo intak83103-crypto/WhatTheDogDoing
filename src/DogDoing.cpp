@@ -1,6 +1,7 @@
 #include "../include/DogDoing.h"
-
+#include "../include/Random.h"
 #include <cstddef>
+
 
 const std::vector<DogDoing::LevelData> DogDoing::level_table = {
   {1, 0, 50, 10},
@@ -19,6 +20,7 @@ void DogDoing::Init() {
   SetATK(10);
   SetSpeed(10);
   exp = 0;
+  RanDomElement();
 }
 
 void DogDoing::ApplyLevelData() {
@@ -80,4 +82,26 @@ DDInfo DogDoing::InfoPackage() const {
 
 int DogDoing::GetCrit() const {
   return crit;
+}
+
+void DogDoing::RanDomElement() {
+  bool is_none = Random::RandomChance(40);
+  if ( is_none ) {
+    SetElement(Element::None);
+    return;
+  }
+    
+  int element = Random::RandomInt(1, 5);
+    
+  if ( element == 1 ) {
+    SetElement(Element::Dark);
+  } else if ( element == 2 ) {
+    SetElement(Element::Fire);
+  } else if ( element == 3 ) {
+    SetElement(Element::Grass);
+  } else if ( element == 4 ) {
+    SetElement(Element::Thunder);
+  } else if ( element == 5 ) {
+    SetElement(Element::Water);
+  } 
 }

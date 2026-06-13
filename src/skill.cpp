@@ -31,5 +31,5 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id, int atk) {
 }
 
 SkillDetail SkillDataBase::GetSkillDetail(SkillInfo skill) {
-  return {skill.skill_effect, skill.value};
+  return {skill.skill_effect, skill.value, skill.skill_name};
 }

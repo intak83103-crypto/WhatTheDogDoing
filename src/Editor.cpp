@@ -6,6 +6,8 @@
 #include "../include/IO.h"
 #include "../include/Products.h"
 #include "../include/Item.h"
+#include "../include/Battle.h"
+#include "../include/Enemy.h"
 
 void Editor::NewUser() {
   std::string user_name;
@@ -66,6 +68,9 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
     if ( op == "b" || op == "bp" ) {
       return Operate::Backpack;
     }
+    if ( op == "battle_test" ) {
+      return Operate::BattleTest;
+    }
 
   } else if ( control == Control::User ) {    // 介面：使用者
     if ( op == "help" || op == "h" ) {
@@ -90,6 +95,7 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
       switch_user_index = std::stoi(op);
       return Operate::SwitchUser;
     }
+
     
 
   } else if ( control == Control::Shop ) {    // 介面：商店
@@ -158,7 +164,6 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
 
 void Editor::OperateDogDoing(Operate op, std::string str) {
   User& user = users[curr_user];
-  int coin = user.GetCoin();
   if ( op == Operate::HelpDD ) {
     IO::PrintHelpDD(user.GetUserName());
   } else if ( op == Operate::Unknown ) {
@@ -197,6 +202,10 @@ void Editor::OperateDogDoing(Operate op, std::string str) {
     IO::PrintSwitchBackpack();
     std::vector<std::string> backpack;
     user.ListBackpack();
+  } else if ( op == Operate::BattleTest ) {
+    Slime slime;
+    Battle battle =  Battle(user, user.GetCurrentDD(), slime);
+    battle.Run();
   }
   
   else {

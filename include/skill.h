@@ -28,6 +28,7 @@ struct SkillInfo{
 struct SkillDetail {
   SkillEffect effect;
   int value;
+  std::string name;
 };
 
 class SkillDataBase {

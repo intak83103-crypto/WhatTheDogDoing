@@ -24,7 +24,7 @@ bool IO::GetToken(std::string& token) {
 }
 
 void IO::Divider() {
-  std::cout << "-----------------------------------------------------------" << std::endl;
+  std::cout << "------------------------------------------------------------" << std::endl;
 }
 
 void IO::Divider(int n) {
@@ -65,9 +65,24 @@ void IO::PrintDDInfo(DDInfo info) {
   PrintDDtitle(info.title);
   std::cout << std::endl;
   Divider();
-  std::cout << "  HP    : " << dd.hp << " / " << dd.max_hp << std::endl;
-  std::cout << "  ATK   : " << dd.attack << std::endl;
-  std::cout << "  SPEED : " << dd.speed << std::endl;
+  std::cout << "  血量    : " << dd.hp << " / " << dd.max_hp << std::endl;
+  std::cout << "  攻擊    : " << dd.attack << std::endl;
+  std::cout << "  速度    : " << dd.speed << std::endl;
+  std::cout << "  元素    : " ;
+  if ( info.property.element == Element::None ) {
+    std::cout << "無屬性" << std::endl;
+  } else if ( info.property.element == Element::Fire ) {
+    std::cout << "火" << std::endl;
+  } else if ( info.property.element == Element::Grass ) {
+    std::cout << "草" << std::endl;
+  } else if ( info.property.element == Element::Thunder ) {
+    std::cout << "雷" << std::endl;
+  } else if ( info.property.element == Element::Water ) {
+    std::cout << "水" << std::endl;
+  } else if ( info.property.element == Element::Dark ) {
+    std::cout << "暗" << std::endl;
+  }
+  std::cout << "  技能數量: " << info.property.num_of_skill << std::endl;
   Divider();
   PrintDot(1);
 }
@@ -471,4 +486,61 @@ void IO::PrintSkillSelectError() {
   PrintDot(9);
   Divider();
   std::cout << "沒有這個技能" << std::endl;
+}
+
+void IO::PrintBattleDoesNotHit() {
+  Divider();
+  std::cout << "未命中..." << std::endl;
+}
+
+void IO::PrintBattleDamage(std::string attacker, std::string defender, int damage) {
+  Divider();
+  std::cout << attacker + "對" + defender + "造成 " << damage << "點傷害" << std::endl;
+}
+
+void IO::PrintBattleTurnStart(int i) {
+  PrintDot(2);
+  Divider();
+  std::cout << "第" << i << "回合" << std::endl;
+}
+
+void IO::PrintBattleCrit() {
+  Divider();
+  std::cout << "暴擊！" << std::endl;
+}
+
+void IO::PrintUseSkill(std::string name, std::string skill_name) {
+  PrintDot(2);
+  Divider();
+  std::cout << name + "發動了：" + skill_name << std::endl;
+}
+
+void IO::PrintBattleRoundStart(std::string name) {
+  Divider();
+  std::cout << name + "的攻擊" << std::endl;
+}
+
+void IO::PrintBattleStart(std::string user, std::string enemy) {
+  PrintDot(3);
+  Divider();
+  std::cout << "戰鬥開始 !" << std::endl;
+  std::cout << user + " 對決 " + enemy << std::endl;
+}
+void IO::PrintBattleEnd() {
+  PrintDot(9);
+  Divider();
+  std::cout << "戰鬥結束" << std::endl; 
+}
+void IO::PrintBattleDDDie(std::string dd_name) {
+  PrintDot(9);
+  Divider();
+  std::cout << dd_name + "已死亡..." << std::endl;
+}
+void IO::PrintBattleWin() {
+  Divider();
+  std::cout << "戰鬥勝利 !" << std::endl;
+}
+void IO::PrintBattleLose() {
+  Divider();
+  std::cout << "戰鬥失敗..." << std::endl;
 }

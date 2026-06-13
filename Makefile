@@ -15,6 +15,7 @@ SRCS = main.cpp \
        src/Editor.cpp \
        src/Battle.cpp \
        src/skill.cpp \
+       src/Enemy.cpp \
 
 all:
 	@clear 2>/dev/null || true

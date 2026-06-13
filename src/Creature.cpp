@@ -142,7 +142,22 @@ bool Creature::DeleteSKill(int index) {
     IO::PrintSkillSelectError();
     return false;
   }
-  skill_list[index - 1] = SkillID::None;
+  skill_list[index] = SkillID::None;
   num_of_skill--;
   return true;
+}
+
+SkillID Creature::GetIndexOfSkillList(int index) const {
+  index--;
+  if ( index < 0 || index > 3 ) {
+    return SkillID::None;
+  }
+  return skill_list[index];
+}
+
+void Creature::MinusHp(int minus) {
+  hp -= minus;
+  if ( hp <= 0 ) {
+    hp = 0;
+  }
 }

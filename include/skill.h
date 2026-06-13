@@ -9,11 +9,11 @@ enum class SkillType {  // 技能類型
 };
 
 enum class SkillEffect {    // 技能效果
-  None, Attack, Heal, Defend
+  None, Attack, Heal, Defend, Buff
 };
 
 enum class SkillID {
-  None
+  None, NormalAttack
 };
 
 struct SkillInfo{
@@ -32,7 +32,7 @@ struct SkillDetail {
 
 class SkillDataBase {
 public:
-  static SkillInfo GetSkillInfo(SkillID id);
+  static SkillInfo GetSkillInfo(SkillID id, int atk);
   static SkillDetail GetSkillDetail(SkillInfo skill);
 };
 

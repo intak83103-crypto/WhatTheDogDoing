@@ -10,8 +10,8 @@
 class Creature{
 private:
   Element element = None;
-  SkillID skill_list[3] = {SkillID::None, SkillID::None, SkillID::None};
-  int num_of_skill = 0;
+  SkillID skill_list[4] = {SkillID::NormalAttack ,SkillID::None, SkillID::None, SkillID::None};
+  int num_of_skill = 1;
   std::string name;
   int hp = 0;
   int max_hp = 0;
@@ -57,6 +57,8 @@ public:
   void AddSkill(SkillID skill);
   void UseSkill(SkillID skill);
   bool DeleteSKill(int index);
+  SkillID GetIndexOfSkillList(int index) const;
+  void MinusHp(int minus);
 };
 
 

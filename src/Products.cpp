@@ -13,6 +13,5 @@ void ProductDD::Apply(User& user) const {
 ProductHealPotion::ProductHealPotion() : Product("治療藥水", 20) {}
 
 void ProductHealPotion::Apply(User& user) const {
-  IO::PrintDot(9);
   user.GetItem(ItemType::HealPotion);
 }

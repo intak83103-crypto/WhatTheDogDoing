@@ -15,7 +15,7 @@ User::User(std::string name, int id) {
   IO::FirstDD();
   dogdoings.emplace_back(DogDoing(id_of_dd++));
   curr_dd = 0;
-  coin = 200;
+  coin = 5000;
   backpack = {};
 }
 

@@ -203,7 +203,7 @@ void Editor::OperateDogDoing(Operate op, std::string str) {
     std::vector<std::string> backpack;
     user.ListBackpack();
   } else if ( op == Operate::BattleTest ) {
-    Slime slime;
+    FireSlime slime;
     Battle battle =  Battle(user, user.GetCurrentDD(), slime);
     battle.Run();
   }

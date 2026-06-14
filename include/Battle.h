@@ -21,6 +21,9 @@ private:
   int temp_atk_of_enemy = 0;
   int damage_increase_of_dd = 0;
   int damage_increase_of_enemy = 0;
+  int defend_of_dd = 0;
+  int defend_of_enemy;
+  int is_advantage = 0;  //屬性是否克制： 0：無  1 : 克制  2 : 被克制
   
 public:
   Battle(User& user, DogDoing& dogdoing, Enemy& enemy); 
@@ -38,6 +41,7 @@ public:
   void SkillEffectApply(bool is_enemy, SkillDetail skill_detail);
   void SetTempAtk(bool is_enemy);
   void SetElementBonus();
+  bool EnemyShouldUseSkill(int index);
 };
 
 

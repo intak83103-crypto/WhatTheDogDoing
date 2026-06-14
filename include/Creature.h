@@ -11,6 +11,7 @@ class Creature{
 private:
   Element element = None;
   SkillID skill_list[4] = {SkillID::NormalAttack ,SkillID::None, SkillID::None, SkillID::None};
+  int skill_cd[4] = {0, 0 ,0 ,0};
   int num_of_skill = 1;
   std::string name;
   int hp = 0;
@@ -54,12 +55,17 @@ public:
   void SetMaxUltEnergy(int max_ult_energy);
   void AddUltEnergy(int value);
   void UseUltEnergy();
-  void AddSkill(SkillID skill);
-  void UseSkill(SkillID skill);
+  bool AddSkill(SkillID skill);
   bool DeleteSKill(int index);
   SkillID GetIndexOfSkillList(int index) const;
   void MinusHp(int minus);
-  
+  int GetNumOfSkill() const;
+  void SetNumOfSkill(int num);
+  int GetSkillCD(int index) const;
+  bool CanUseSkill(int index) const;
+  void SetSkillCd(int index, int cd);
+  void ReduceSkillCD();
+  void ReSetSkillCD(int index);
 };
 
 

@@ -13,7 +13,7 @@ enum class SkillEffect {    // 技能效果
 };
 
 enum class SkillID {
-  None, NormalAttack
+  None, NormalAttack, Heal
 };
 
 struct SkillInfo{
@@ -23,6 +23,7 @@ struct SkillInfo{
   SkillEffect skill_effect;
   int value;
   SkillID id;
+  int cd;
 };
 
 struct SkillDetail {

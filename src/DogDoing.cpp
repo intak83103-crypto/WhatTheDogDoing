@@ -21,6 +21,7 @@ void DogDoing::Init() {
   SetSpeed(10);
   exp = 0;
   RanDomElement();
+  AddSkill(SkillID::Heal);
 }
 
 void DogDoing::ApplyLevelData() {
@@ -35,13 +36,13 @@ DogDoing::DogDoing() {}
 DogDoing::DogDoing(int i) {
   Init();
   SetName("DogDoing_" + std::to_string(i));
-  IO::PrintDDSetUp({GetName(), rank, level});
+  IO::PrintDDSetUp({GetName(), rank, level, GetElement()});
 }
 
 DogDoing::DogDoing(std::string name) {
   Init();
   SetName(name);
-  IO::PrintDDSetUp({name, rank, level});
+  IO::PrintDDSetUp({name, rank, level, GetElement()});
 }
 
 int DogDoing::GetLevel() const {
@@ -71,7 +72,7 @@ void DogDoing::AddExp(int value) {
 
 
 DDtitleInfo DogDoing::TitlePackage() const{
-  return {GetName(), rank, level};
+  return {GetName(), rank, level, GetElement()};
 }
 
 DDInfo DogDoing::InfoPackage() const {
@@ -85,7 +86,7 @@ int DogDoing::GetCrit() const {
 }
 
 void DogDoing::RanDomElement() {
-  bool is_none = Random::RandomChance(40);
+  bool is_none = Random::RandomChance(30);
   if ( is_none ) {
     SetElement(Element::None);
     return;

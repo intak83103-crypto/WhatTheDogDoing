@@ -12,6 +12,7 @@ public:
   static bool GetToken(std::string& token);
   static void Divider();
   static void Divider(int n);
+  static void Pause(int seconds);
   static void PrintNewUser();
   static void PrintUserSetUp(const std::string& name, const int& id);
   static void PrintDDSetUp(DDtitleInfo dd);
@@ -72,11 +73,17 @@ public:
   static void PrintBattleCrit();
   static void PrintUseSkill(std::string name, std::string skill_name);
   static void PrintBattleRoundStart(std::string name);
-  static void PrintBattleStart(std::string user, std::string enemy);
+  static void PrintBattleStart(std::string user, std::string enemy, int is_advantage);
   static void PrintBattleEnd();
   static void PrintBattleDDDie(std::string dd_name);
   static void PrintBattleWin();
   static void PrintBattleLose();
+  static void FullOfSkill();
+  static void PrintNormalAttackError();
+  static void PrintDots();
+  static void PrintSkillUnready();
+  static void PrintBattleHeal(std::string attacker, int heal);
+  static void PrintBattleHpInfo(CreatureInfo info);
 };
 
 #endif

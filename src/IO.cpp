@@ -1,8 +1,10 @@
 #include "../include/IO.h"
 
+#include <chrono>
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
+#include <thread>
 
 #include "../include/DogDoing.h"
 #include "../include/Item.h"
@@ -12,7 +14,7 @@
 
 void IO::PrintDot(int dot) {
   for ( int i = 0; i < dot; i++ ) {
-    std::cout << "." << std::endl;;
+    std::cout << "\n" << std::endl;;
   }
 }
 
@@ -33,8 +35,12 @@ void IO::Divider(int n) {
   }
 }
 
+void IO::Pause(int seconds) {
+  std::this_thread::sleep_for(std::chrono::seconds(seconds));
+}
+
 void IO::PrintNewUser() {
-  PrintDot(9);
+  PrintDot(5);
   std::cout << "創建新的用戶中..." << std::endl;
   std::cout << "請輸入用戶名 :  " << std::endl;
 }
@@ -68,23 +74,7 @@ void IO::PrintDDInfo(DDInfo info) {
   std::cout << "  血量    : " << dd.hp << " / " << dd.max_hp << std::endl;
   std::cout << "  攻擊    : " << dd.attack << std::endl;
   std::cout << "  速度    : " << dd.speed << std::endl;
-  std::cout << "  元素    : " ;
-  if ( info.property.element == Element::None ) {
-    std::cout << "無屬性" << std::endl;
-  } else if ( info.property.element == Element::Fire ) {
-    std::cout << "火" << std::endl;
-  } else if ( info.property.element == Element::Grass ) {
-    std::cout << "草" << std::endl;
-  } else if ( info.property.element == Element::Thunder ) {
-    std::cout << "雷" << std::endl;
-  } else if ( info.property.element == Element::Water ) {
-    std::cout << "水" << std::endl;
-  } else if ( info.property.element == Element::Dark ) {
-    std::cout << "暗" << std::endl;
-  }
   std::cout << "  技能數量: " << info.property.num_of_skill << std::endl;
-  Divider();
-  PrintDot(1);
 }
 
 void IO::PrintRank(int rank) {
@@ -148,7 +138,7 @@ void IO::ListAllDD(std::vector<DDtitleInfo> dd, std::string name, int index) {
   std::cout << name << "的刀盾：";
   std::cout << "       (輸入數字可切換至對應刀盾)" << std::endl;
   Divider();
-  std::cout << "No.   | Rank  | Level | Name " << std::endl;
+  std::cout << "No.   | Rank  | Element | Level | Name " << std::endl;
   Divider();
   for ( int i = 0; i < n; i++ ) {
     std::cout << i + 1;
@@ -175,6 +165,21 @@ void IO::PrintRenameSuccess(DDInfo dd) {
 
 void IO::PrintDDtitle(DDtitleInfo title) {
   PrintRank(title.rank);
+  Element element = title.element;
+  if ( element == Element::None ) {
+    std::cout << " | 無屬性 ";
+  } else if ( element == Element::Fire ) {
+    std::cout << " |   火   ";
+  } else if ( element == Element::Grass ) {
+    std::cout << " |   草   ";
+  } else if ( element == Element::Thunder ) {
+    std::cout << " |   雷   ";
+  } else if ( element == Element::Water ) {
+    std::cout << " |   水   ";
+  } else if ( element == Element::Dark ) {
+    std::cout << " |   暗   ";
+  }
+
   std::cout << " | LV." << std::setfill('0') << std::setw(2) 
             << title.level << " | " << title.name;
   std::cout << std::setfill(' ');
@@ -489,45 +494,55 @@ void IO::PrintSkillSelectError() {
 }
 
 void IO::PrintBattleDoesNotHit() {
+  std::cout << "  > 未命中..." << std::endl;
   Divider();
-  std::cout << "未命中..." << std::endl;
 }
 
 void IO::PrintBattleDamage(std::string attacker, std::string defender, int damage) {
+  std::cout << "  > " + attacker + "對" + defender + "造成 " << damage << "點傷害" << std::endl;
   Divider();
-  std::cout << attacker + "對" + defender + "造成 " << damage << "點傷害" << std::endl;
 }
 
 void IO::PrintBattleTurnStart(int i) {
   PrintDot(2);
   Divider();
   std::cout << "第" << i << "回合" << std::endl;
+  Divider();
+  Pause(1);
 }
 
 void IO::PrintBattleCrit() {
-  Divider();
-  std::cout << "暴擊！" << std::endl;
+  std::cout << "  >        暴擊！    " << std::endl;
 }
 
 void IO::PrintUseSkill(std::string name, std::string skill_name) {
   PrintDot(2);
   Divider();
-  std::cout << name + "發動了：" + skill_name << std::endl;
+  std::cout << "  > " +name + "發動了：" + skill_name << std::endl;
+  Divider();
 }
 
 void IO::PrintBattleRoundStart(std::string name) {
-  Divider();
+  PrintDot(2);
   std::cout << name + "的攻擊" << std::endl;
 }
 
-void IO::PrintBattleStart(std::string user, std::string enemy) {
-  PrintDot(3);
+void IO::PrintBattleStart(std::string user, std::string enemy, int is_advantage) {
+  PrintDot(9);
   Divider();
   std::cout << "戰鬥開始 !" << std::endl;
-  std::cout << user + " 對決 " + enemy << std::endl;
+  std::cout << std::endl;
+  std::cout << user + " 對決 " + enemy + "  ";
+  if ( is_advantage == 1 ) {
+    std::cout << "( 屬性克制 ! )";
+  } else if ( is_advantage == 2 ) {
+    std::cout << "( 屬性被克制 ! )";
+  }
+  std::cout << std::endl;
+  PrintDot(3);
 }
 void IO::PrintBattleEnd() {
-  PrintDot(9);
+  PrintDot(3);
   Divider();
   std::cout << "戰鬥結束" << std::endl; 
 }
@@ -543,4 +558,37 @@ void IO::PrintBattleWin() {
 void IO::PrintBattleLose() {
   Divider();
   std::cout << "戰鬥失敗..." << std::endl;
+}
+
+void IO::FullOfSkill() {
+  PrintDot(9);
+  Divider();
+  std::cout << "技能已滿" << std::endl;
+}
+
+void IO::PrintNormalAttackError() {
+  PrintDot(9);
+  Divider();
+  std::cout << "不可替換普通攻擊" << std::endl;
+}
+
+void IO::PrintDots() {
+  PrintDot(1);
+  std::cout << "      ...     "  << std::endl;
+  PrintDot(1);
+}
+
+void IO::PrintSkillUnready() {
+  PrintDot(2);
+  std::cout << "技能冷卻中..." << std::endl;
+  PrintDot(2);
+}
+
+void IO::PrintBattleHeal(std::string attacker, int heal) {
+  std::cout << "  > " + attacker + "回復了  : " << heal << "點血量" << std::endl;
+  Divider();
+}
+
+void IO::PrintBattleHpInfo(CreatureInfo info) {
+  std::cout << "   " + info.name + " : " << info.hp << " / " << info.max_hp <<  std::endl;
 }

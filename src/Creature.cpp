@@ -135,13 +135,22 @@ void Creature::UseUltEnergy() {
   ult_energy = 0;
 }
 
-void Creature::AddSkill(SkillID skill) {
+bool Creature::AddSkill(SkillID skill) {
+  if ( num_of_skill >= 4 ) {
+
+    return false;
+  }
   skill_list[num_of_skill++] = skill;
+  return true;
 }
 
 bool Creature::DeleteSKill(int index) {
   index--;
-  if ( index < 0 || index > 3 || skill_list[index] == SkillID::None) {
+  if ( index == 0 ) {
+    IO::PrintNormalAttackError();
+    return false;
+  }
+  if ( index <= 0 || index >= 4 || skill_list[index] == SkillID::None) {
     IO::PrintSkillSelectError();
     return false;
   }
@@ -163,4 +172,47 @@ void Creature::MinusHp(int minus) {
   if ( hp <= 0 ) {
     hp = 0;
   }
+  
+}
+
+int Creature::GetNumOfSkill() const {
+  return num_of_skill;
+}
+
+void Creature::SetNumOfSkill(int num) {
+  num_of_skill = num;
+}
+
+int Creature::GetSkillCD(int index) const {
+  index--;
+  if ( index < 0 || index >= 4 ) {
+    return -1;
+  }
+  return skill_cd[index];
+}
+
+bool Creature::CanUseSkill(int index) const {
+  if ( GetSkillCD(index) > 0 ) {
+    return false;
+  }
+  return true;
+}
+
+void Creature::SetSkillCd(int index, int cd) {
+  skill_cd[--index] = cd;
+}
+
+void Creature::ReduceSkillCD() {
+  for ( int i = 0; i < num_of_skill; i++ ) {
+    skill_cd[i]--;
+    if ( skill_cd[i] <= 0 ) {
+      skill_cd[i] = 0;
+    }
+  }
+}
+void Creature::ReSetSkillCD(int index) {
+  index--;
+  SkillID id = skill_list[index];
+  SkillInfo info = SkillDataBase::GetSkillInfo(id, attack);
+  skill_cd[index] = info.cd;
 }

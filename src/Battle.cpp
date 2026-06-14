@@ -70,23 +70,33 @@ int Battle::CalculateDamage(int damage, bool is_enemy) {
 }
 
 void Battle::Run() {
-  IO::PrintBattleStart(dogdoing.GetName(), enemy.GetName());
+  IO::PrintBattleStart(dogdoing.GetName(), enemy.GetName(), is_advantage);
   bool dd_first = dogdoing.GetSpeed() >= enemy.GetSpeed();
 
 
   while ( IsBattleOver() == false ) {
+    IO::Pause(1);
     IO::PrintBattleTurnStart(turn);
+    IO::PrintDot(1);
+    IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
+    IO::PrintBattleHpInfo(enemy.GetCreatureInfo());
+    IO::PrintDot(1);
+    
     if ( dd_first ) {
       DDTurn();
       if ( IsBattleOver() == false ) {
+        IO::Pause(1);
         EnemyTurn();
       }
     } else {
       EnemyTurn();
       if ( IsBattleOver() == false ) {
+        IO::Pause(1);
         DDTurn();
       }
     }
+    dogdoing.ReduceSkillCD();
+    enemy.ReduceSkillCD();
     turn++;
   }
 
@@ -108,13 +118,18 @@ void Battle::DDTurn() {
       SkillID skill_id = dogdoing.GetIndexOfSkillList(select_id);
 
       if ( skill_id == SkillID::None ) {
-        // 找不到skill
+        IO::PrintSkillSelectError();
         continue;
       } else {
-        SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id, dogdoing.GetATK());
-        SkillDetail detail = SkillDataBase::GetSkillDetail(skill_info);
-        SkillEffectApply(false, detail);
-        return;
+        if ( dogdoing.CanUseSkill(select_id) ) {
+          dogdoing.ReSetSkillCD(select_id);
+          SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id, dogdoing.GetATK());
+          SkillDetail detail = SkillDataBase::GetSkillDetail(skill_info);
+          SkillEffectApply(false, detail);
+          return;
+        } else {
+          IO::PrintSkillUnready();
+        }
       }
     } else {
       IO::PrintInputError(op);
@@ -127,12 +142,43 @@ void Battle::EnemyTurn() {
   IO::PrintBattleRoundStart(enemy.GetName());
   int use_skill = Random::RandomInt(1, enemy.GetNumOfSkill());
   SkillID skill_id = SkillID::None;
+  int try_count = 0;
+  while ( EnemyShouldUseSkill(use_skill) == false && try_count < 10 ) {
+    use_skill = Random::RandomInt(1, enemy.GetNumOfSkill());
+    try_count++;
+  }
+  if ( EnemyShouldUseSkill(use_skill) == false ) {
+    use_skill = 1;
+  }
   if ( use_skill == 1 ) {
     skill_id = enemy.GetIndexOfSkillList(1);
+  } else if ( use_skill == 2 ) {
+    skill_id = enemy.GetIndexOfSkillList(2);
+  } else if ( use_skill == 3 ) {
+    skill_id = enemy.GetIndexOfSkillList(3);
+  } else if ( use_skill == 4 ) {
+    skill_id = enemy.GetIndexOfSkillList(4);
   }
   SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id, enemy.GetATK());
   SkillDetail detail = SkillDataBase::GetSkillDetail(skill_info);
+  enemy.ReSetSkillCD(use_skill);
   SkillEffectApply(true, detail);
+}
+
+bool Battle::EnemyShouldUseSkill(int index) {
+  if ( enemy.CanUseSkill(index) == false ) {
+    return false;
+  }
+
+  SkillID skill_id = enemy.GetIndexOfSkillList(index);
+  SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id, enemy.GetATK());
+
+  if ( skill_info.skill_effect == SkillEffect::Heal &&
+       enemy.GetHp() * 100 / enemy.GetMaxHp() > 80 ) {
+    return false;
+  }
+
+  return true;
 }
 
 bool Battle::IsBattleOver() const {
@@ -143,11 +189,13 @@ bool Battle::IsBattleOver() const {
 void Battle::SkillEffectApply(bool is_enemy, SkillDetail skill_detail) {
   int value = skill_detail.value;
   SkillEffect effect = skill_detail.effect;
+  IO::Pause(1);
   if ( is_enemy ) {
     IO::PrintUseSkill(enemy.GetName(), skill_detail.name);
   } else {
     IO::PrintUseSkill(dogdoing.GetName(), skill_detail.name);
   }
+  IO::Pause(1);
   if ( effect == SkillEffect::Attack ) {
     if ( IsHit(is_enemy) ) {
       value = CalculateDamage(value, is_enemy);
@@ -158,9 +206,11 @@ void Battle::SkillEffectApply(bool is_enemy, SkillDetail skill_detail) {
       if ( is_enemy ) {
         dogdoing.MinusHp(value);
         IO::PrintBattleDamage(enemy.GetName(), dogdoing.GetName(), value);
+        IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
       } else {
         enemy.MinusHp(value);
         IO::PrintBattleDamage(dogdoing.GetName(), enemy.GetName(), value);
+        IO::PrintBattleHpInfo(enemy.GetCreatureInfo());
       }
     } else {
       IO::PrintBattleDoesNotHit();
@@ -168,7 +218,11 @@ void Battle::SkillEffectApply(bool is_enemy, SkillDetail skill_detail) {
   } else if ( effect == SkillEffect::Heal ) {
     if ( is_enemy ) {
       enemy.Heal(value);
+      IO::PrintBattleHeal(enemy.GetName(), value);
+      IO::PrintBattleHpInfo(enemy.GetCreatureInfo());
     } else {
+      IO::PrintBattleHeal(dogdoing.GetName(), value);
+      IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
       dogdoing.Heal(value);
     }
   } else if ( effect == SkillEffect::Defend ) {
@@ -198,36 +252,47 @@ void Battle::SetTempAtk(bool is_enemy) {
 void Battle::SetElementBonus() {
   Element dd_element = dogdoing.GetElement();
   Element enemy_element = enemy.GetElement();
-  if ( dd_element == Element::Dark && enemy_element == Element::Thunder ) {
+  if ( dd_element == Element::Dark && enemy_element == Element::Water ) {
     damage_increase_of_dd += 20;
     damage_increase_of_enemy -= 20;
-  } else if ( dd_element == Element::Thunder && enemy_element == Element::Grass ) {
+    is_advantage = 1;
+  } else if ( dd_element == Element::Water && enemy_element == Element::Fire ) {
     damage_increase_of_dd += 20;
     damage_increase_of_enemy -= 20;
-  } else if ( dd_element == Element::Grass && enemy_element == Element::Fire ) {
+    is_advantage = 1;
+  } else if ( dd_element == Element::Fire && enemy_element == Element::Grass ) {
     damage_increase_of_dd += 20;
     damage_increase_of_enemy -= 20;
-  } else if ( dd_element == Element::Fire && enemy_element == Element::Water ) {
+    is_advantage = 1;
+  } else if ( dd_element == Element::Grass && enemy_element == Element::Thunder ) {
     damage_increase_of_dd += 20;
     damage_increase_of_enemy -= 20;
-  } else if ( dd_element == Element::Water && enemy_element == Element::Dark ) {
+    is_advantage = 1;
+  } else if ( dd_element == Element::Thunder && enemy_element == Element::Dark ) {
     damage_increase_of_dd += 20;
     damage_increase_of_enemy -= 20;
+    is_advantage = 1;
   }
-  if ( enemy_element == Element::Dark && dd_element == Element::Thunder ) {
+
+  if ( enemy_element == Element::Dark && dd_element == Element::Water ) {
     damage_increase_of_dd -= 20;
     damage_increase_of_enemy += 20;
-  } else if ( enemy_element == Element::Thunder && dd_element == Element::Grass ) {
+    is_advantage = 2;
+  } else if ( enemy_element == Element::Water && dd_element == Element::Fire ) {
     damage_increase_of_dd -= 20;
     damage_increase_of_enemy += 20;
-  } else if ( enemy_element == Element::Grass && dd_element == Element::Fire ) {
+    is_advantage = 2;
+  } else if ( enemy_element == Element::Fire && dd_element == Element::Grass ) {
+    damage_increase_of_dd -= 20;
+   damage_increase_of_enemy += 20;
+   is_advantage = 2;
+  } else if ( enemy_element == Element::Grass && dd_element == Element::Thunder ) {
     damage_increase_of_dd -= 20;
     damage_increase_of_enemy += 20;
-  } else if ( enemy_element == Element::Fire && dd_element == Element::Water ) {
+    is_advantage = 2;
+  } else if ( enemy_element == Element::Thunder && dd_element == Element::Dark ) {
     damage_increase_of_dd -= 20;
     damage_increase_of_enemy += 20;
-  } else if ( enemy_element == Element::Water && dd_element == Element::Dark ) {
-    damage_increase_of_dd -= 20;
-    damage_increase_of_enemy += 20;
+    is_advantage = 2;
   }
 }

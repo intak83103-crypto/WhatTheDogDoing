@@ -4,15 +4,18 @@
 #include <string>
 #include "skill.h"
 
+enum Element{
+  Fire, Water, Thunder, Grass, Dark, None
+};
+
 struct DDtitleInfo{
   std::string name;
   int rank;
   int level;
+  Element element;
 };
 
-enum Element{
-  Fire, Water, Thunder, Grass, Dark, None
-};
+
 
 struct CreatureInfo{
   int hp;

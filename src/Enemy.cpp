@@ -9,9 +9,7 @@ int Enemy::GetCoinReward() const {
   return coin_reward;
 }
 
-int Enemy::GetNumOfSkill() const {
-  return num_of_skill;
-}
+
 
 void Enemy::SetExpReward(int exp_reward) {
   this->exp_reward = exp_reward;
@@ -21,22 +19,44 @@ void Enemy::SetCoinReward(int coin_reward) {
   this->coin_reward = coin_reward;
 }
 
-void Enemy::SetNumOfSkill(int num) {
-  this->num_of_skill = num;
-}
 
 Slime::Slime() {
   SetName("史萊姆");
-  SetHp(30);
-  SetMaxHp(30);
-  SetATK(6);
+  SetHp(60);
+  SetMaxHp(60);
+  SetATK(12);
   SetSpeed(6);
-  SetElement(Grass);
   SetExpReward(10);
   SetCoinReward(5);
   SetNumOfSkill(1);
+  AddSkill(SkillID::Heal);
 }
 
 void Enemy::PrintInfo() const {
   // 之後再做 IO::PrintEnemyInfo
+}
+
+FireSlime::FireSlime() : Slime(){
+  SetElement(Element::Fire);
+  SetName("火史萊姆");
+}
+
+WaterSlime::WaterSlime() : Slime(){
+  SetElement(Element::Water);
+  SetName("水史萊姆");
+}
+
+GrassSlime::GrassSlime() : Slime(){
+  SetElement(Element::Grass);
+  SetName("草史萊姆");
+}
+
+ThunderSlime::ThunderSlime() : Slime(){
+  SetElement(Element::Thunder);
+  SetName("雷史萊姆");
+}
+
+DarkSlime::DarkSlime() : Slime(){
+  SetElement(Element::Dark);
+  SetName("暗史萊姆");
 }

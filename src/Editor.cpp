@@ -203,9 +203,7 @@ void Editor::OperateDogDoing(Operate op, std::string str) {
     std::vector<std::string> backpack;
     user.ListBackpack();
   } else if ( op == Operate::BattleTest ) {
-    FireSlime slime;
-    Battle battle =  Battle(user, user.GetCurrentDD(), slime);
-    battle.Run();
+    BattleTest();
   }
   
   else {
@@ -347,9 +345,9 @@ void Editor::OperateBackpack(Operate op, std::string str) {
   }
 }
 
-  void Editor::OperateSelectTargetDD(Operate op, std::string str) {
-    User& user = users[curr_user];
-    if ( op == Operate::Unknown ) {
+void Editor::OperateSelectTargetDD(Operate op, std::string str) {
+  User& user = users[curr_user];
+  if ( op == Operate::Unknown ) {
       IO::PrintInputError(str);
     } else if ( op == Operate::HelpSelectTargetDD ) {
       IO::HelpSelecttargetDD();
@@ -366,6 +364,75 @@ void Editor::OperateBackpack(Operate op, std::string str) {
       control = Control::Backpack;
     }
   }
+
+void Editor::BattleTest() {
+  int selected_enemy = 1;
+  int enemy_count = 6;
+  std::string op;
+
+  IO::PrintBattleTestMenu(selected_enemy);
+  while ( true ) {
+    IO::PrintOperateWating();
+    if ( IO::GetToken(op) == false ) {
+      IO::PrintCinError();
+      continue;
+    }
+
+    op = ToLower(op);
+    if ( op == "start" ) {
+      StartBattleTest(selected_enemy);
+      return;
+    }
+    if ( op == "help" || op == "h" ) {
+      IO::PrintBattleTestHelp();
+    } else if ( op == "list" || op == "l" ) {
+      IO::PrintBattleTestMenu(selected_enemy);
+    } else if ( op == "back" || op == "b" ) {
+      IO::PrintBacktoDD();
+      return;
+    } else if ( IsDigit(op) ) {
+      int select = std::stoi(op);
+      if ( select < 1 || select > enemy_count ) {
+        IO::PrintBattleTestError();
+        continue;
+      }
+      selected_enemy = select;
+      IO::PrintBattleTestSelect(selected_enemy);
+    } else {
+      IO::PrintInputError(op);
+    }
+  }
+}
+
+void Editor::StartBattleTest(int enemy_index) {
+  User& user = users[curr_user];
+
+  if ( enemy_index == 1 ) {
+    FireSlime enemy;
+    Battle battle(user, user.GetCurrentDD(), enemy);
+    battle.Run();
+  } else if ( enemy_index == 2 ) {
+    WaterSlime enemy;
+    Battle battle(user, user.GetCurrentDD(), enemy);
+    battle.Run();
+  } else if ( enemy_index == 3 ) {
+    GrassSlime enemy;
+    Battle battle(user, user.GetCurrentDD(), enemy);
+    battle.Run();
+  } else if ( enemy_index == 4 ) {
+    ThunderSlime enemy;
+    Battle battle(user, user.GetCurrentDD(), enemy);
+    battle.Run();
+  } else if ( enemy_index == 5 ) {
+    DarkSlime enemy;
+    Battle battle(user, user.GetCurrentDD(), enemy);
+    battle.Run();
+  } else if ( enemy_index == 6 ) {
+    Goblin enemy;
+    Battle battle(user, user.GetCurrentDD(), enemy);
+    battle.Run();
+  }
+}
 
 void Editor::SetUpShop() {
   shop.AddProduct(new ProductDD());

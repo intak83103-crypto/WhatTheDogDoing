@@ -38,7 +38,7 @@ public:
   void DDTurn();
   void EnemyTurn();
   bool IsDigit(std::string str);
-  void SkillEffectApply(bool is_enemy, SkillDetail skill_detail);
+  void SkillEffectApply(bool is_enemy, SkillInfo SkillInfo);
   void SetTempAtk(bool is_enemy);
   void SetElementBonus();
   bool EnemyShouldUseSkill(int index);

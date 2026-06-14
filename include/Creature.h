@@ -66,6 +66,7 @@ public:
   void SetSkillCd(int index, int cd);
   void ReduceSkillCD();
   void ReSetSkillCD(int index);
+  void ResetSkillCD();
 };
 
 

@@ -84,6 +84,10 @@ public:
   static void PrintSkillUnready();
   static void PrintBattleHeal(std::string attacker, int heal);
   static void PrintBattleHpInfo(CreatureInfo info);
+  static void PrintBattleTestMenu(int selected);
+  static void PrintBattleTestHelp();
+  static void PrintBattleTestSelect(int selected);
+  static void PrintBattleTestError();
 };
 
 #endif

@@ -216,3 +216,9 @@ void Creature::ReSetSkillCD(int index) {
   SkillInfo info = SkillDataBase::GetSkillInfo(id, attack);
   skill_cd[index] = info.cd;
 }
+
+void Creature::ResetSkillCD() {
+  for ( int i = 0; i < 4; i++ ) {
+    skill_cd[i] = 0;
+  }
+}

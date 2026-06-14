@@ -50,6 +50,8 @@ private:
   void OperateDelUser(Operate op, std::string str);
   void OperateBackpack(Operate op, std::string str);
   void OperateSelectTargetDD(Operate op, std::string str);
+  void BattleTest();
+  void StartBattleTest(int enemy_index);
   void SetUpShop();
   
 public:

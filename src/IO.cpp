@@ -11,6 +11,29 @@
 #include "../include/Product.h"
 #include "../include/User.h"
 
+namespace {
+std::string BattleTestEnemyName(int index) {
+  if ( index == 1 ) {
+    return "火史萊姆";
+  }
+  if ( index == 2 ) {
+    return "水史萊姆";
+  }
+  if ( index == 3 ) {
+    return "草史萊姆";
+  }
+  if ( index == 4 ) {
+    return "雷史萊姆";
+  }
+  if ( index == 5 ) {
+    return "暗史萊姆";
+  }
+  if ( index == 6 ) {
+    return "哥布林";
+  }
+  return "未知怪物";
+}
+}
 
 void IO::PrintDot(int dot) {
   for ( int i = 0; i < dot; i++ ) {
@@ -585,10 +608,53 @@ void IO::PrintSkillUnready() {
 }
 
 void IO::PrintBattleHeal(std::string attacker, int heal) {
-  std::cout << "  > " + attacker + "回復了  : " << heal << "點血量" << std::endl;
+  std::cout << "  > " + attacker + "回復了 " << heal << "點血量" << std::endl;
   Divider();
 }
 
 void IO::PrintBattleHpInfo(CreatureInfo info) {
-  std::cout << "   " + info.name + " : " << info.hp << " / " << info.max_hp <<  std::endl;
+  std::cout << "  > " + info.name + " : " << info.hp << " / " << info.max_hp <<  std::endl;
+}
+
+void IO::PrintBattleTestMenu(int selected) {
+  PrintDot(9);
+  Divider();
+  std::cout << "戰鬥測試" << std::endl;
+  Divider();
+  std::cout << "輸入數字切換測試怪物，輸入 start 開始戰鬥" << std::endl;
+  Divider();
+  for ( int i = 0; i < 6; i++ ) {
+    std::cout << i + 1;
+    if ( i + 1 == selected ) {
+      std::cout << "  >  ";
+    } else {
+      std::cout << "     ";
+    }
+    std::cout << BattleTestEnemyName(i + 1) << std::endl;
+  }
+  Divider();
+}
+
+void IO::PrintBattleTestHelp() {
+  PrintDot(9);
+  Divider();
+  std::cout << "HELP!" << std::endl;
+  Divider();
+  std::cout << "          | 切換測試怪物" << std::endl;
+  std::cout << "start     | 開始戰鬥" << std::endl;
+  std::cout << "list / l  | 列出怪物" << std::endl;
+  std::cout << "back / b  | 離開戰鬥測試" << std::endl;
+}
+
+void IO::PrintBattleTestSelect(int selected) {
+  PrintDot(9);
+  Divider();
+  std::cout << "已選擇測試怪物 : "
+            << BattleTestEnemyName(selected) << std::endl;
+}
+
+void IO::PrintBattleTestError() {
+  PrintDot(9);
+  Divider();
+  std::cout << "找不到這個測試怪物" << std::endl;
 }

@@ -22,14 +22,15 @@ void Enemy::SetCoinReward(int coin_reward) {
 
 Slime::Slime() {
   SetName("史萊姆");
-  SetHp(60);
-  SetMaxHp(60);
-  SetATK(12);
-  SetSpeed(6);
+  SetHp(40);
+  SetMaxHp(40);
+  SetATK(6);
+  SetSpeed(3);
   SetExpReward(10);
   SetCoinReward(5);
   SetNumOfSkill(1);
   AddSkill(SkillID::Heal);
+  AddSkill(SkillID::Slime_Attack);
 }
 
 void Enemy::PrintInfo() const {
@@ -59,4 +60,19 @@ ThunderSlime::ThunderSlime() : Slime(){
 DarkSlime::DarkSlime() : Slime(){
   SetElement(Element::Dark);
   SetName("暗史萊姆");
+}
+
+Goblin::Goblin() {
+  SetName("哥布林");
+  SetHp(60);
+  SetMaxHp(60);
+  SetATK(12);
+  SetSpeed(8);
+  SetExpReward(10);
+  SetCoinReward(5);
+  SetNumOfSkill(1);
+  SetElement(Element::None);
+  AddSkill(SkillID::Goblin_Bash);
+  AddSkill(SkillID::Goblin_SneakAttack);
+  AddSkill(SkillID::Goblin_Stab);
 }

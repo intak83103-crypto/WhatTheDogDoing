@@ -81,7 +81,7 @@ void Battle::Run() {
     IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
     IO::PrintBattleHpInfo(enemy.GetCreatureInfo());
     IO::PrintDot(1);
-    
+
     if ( dd_first ) {
       DDTurn();
       if ( IsBattleOver() == false ) {
@@ -99,8 +99,10 @@ void Battle::Run() {
     enemy.ReduceSkillCD();
     turn++;
   }
-
+  IO::Pause(1);
   IO::PrintBattleEnd();
+  dogdoing.ResetSkillCD();
+  enemy.ResetSkillCD();
   if ( dogdoing.GetHp() <= 0 ) {
     IO::PrintBattleLose();
   } else {
@@ -124,8 +126,7 @@ void Battle::DDTurn() {
         if ( dogdoing.CanUseSkill(select_id) ) {
           dogdoing.ReSetSkillCD(select_id);
           SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id, dogdoing.GetATK());
-          SkillDetail detail = SkillDataBase::GetSkillDetail(skill_info);
-          SkillEffectApply(false, detail);
+          SkillEffectApply(false, skill_info);
           return;
         } else {
           IO::PrintSkillUnready();
@@ -140,16 +141,21 @@ void Battle::DDTurn() {
 
 void Battle::EnemyTurn() {
   IO::PrintBattleRoundStart(enemy.GetName());
-  int use_skill = Random::RandomInt(1, enemy.GetNumOfSkill());
+  int use_skill = 1;
   SkillID skill_id = SkillID::None;
-  int try_count = 0;
-  while ( EnemyShouldUseSkill(use_skill) == false && try_count < 10 ) {
-    use_skill = Random::RandomInt(1, enemy.GetNumOfSkill());
-    try_count++;
+
+  if ( enemy.GetNumOfSkill() > 1 ) {
+    use_skill = Random::RandomInt(2, enemy.GetNumOfSkill());
+    int try_count = 0;
+    while ( EnemyShouldUseSkill(use_skill) == false && try_count < 10 ) {
+      use_skill = Random::RandomInt(2, enemy.GetNumOfSkill());
+      try_count++;
+    }
+    if ( EnemyShouldUseSkill(use_skill) == false ) {
+      use_skill = 1;
+    }
   }
-  if ( EnemyShouldUseSkill(use_skill) == false ) {
-    use_skill = 1;
-  }
+
   if ( use_skill == 1 ) {
     skill_id = enemy.GetIndexOfSkillList(1);
   } else if ( use_skill == 2 ) {
@@ -160,9 +166,8 @@ void Battle::EnemyTurn() {
     skill_id = enemy.GetIndexOfSkillList(4);
   }
   SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id, enemy.GetATK());
-  SkillDetail detail = SkillDataBase::GetSkillDetail(skill_info);
   enemy.ReSetSkillCD(use_skill);
-  SkillEffectApply(true, detail);
+  SkillEffectApply(true, skill_info);
 }
 
 bool Battle::EnemyShouldUseSkill(int index) {
@@ -173,7 +178,7 @@ bool Battle::EnemyShouldUseSkill(int index) {
   SkillID skill_id = enemy.GetIndexOfSkillList(index);
   SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id, enemy.GetATK());
 
-  if ( skill_info.skill_effect == SkillEffect::Heal &&
+  if ( skill_info.main_use == SkillEffect::Heal &&
        enemy.GetHp() * 100 / enemy.GetMaxHp() > 80 ) {
     return false;
   }
@@ -186,49 +191,55 @@ bool Battle::IsBattleOver() const {
 }
 
 
-void Battle::SkillEffectApply(bool is_enemy, SkillDetail skill_detail) {
-  int value = skill_detail.value;
-  SkillEffect effect = skill_detail.effect;
+void Battle::SkillEffectApply(bool is_enemy, SkillInfo skill_info) {
+  int n = skill_info.skill_detail.size();
   IO::Pause(1);
   if ( is_enemy ) {
-    IO::PrintUseSkill(enemy.GetName(), skill_detail.name);
+    IO::PrintUseSkill(enemy.GetName(), skill_info.skill_name);
   } else {
-    IO::PrintUseSkill(dogdoing.GetName(), skill_detail.name);
+    IO::PrintUseSkill(dogdoing.GetName(), skill_info.skill_name);
   }
-  IO::Pause(1);
-  if ( effect == SkillEffect::Attack ) {
-    if ( IsHit(is_enemy) ) {
-      value = CalculateDamage(value, is_enemy);
-      if ( IsCrit(is_enemy) ) {
-        value = value * 150 / 100;
-        IO::PrintBattleCrit();
-      }
-      if ( is_enemy ) {
-        dogdoing.MinusHp(value);
-        IO::PrintBattleDamage(enemy.GetName(), dogdoing.GetName(), value);
-        IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
+
+  for ( int i = 0; i < n; i++ ) {
+    SkillDetail skill_detail = skill_info.skill_detail[i];
+    int value = skill_detail.value;
+    SkillEffect effect = skill_detail.effect;
+
+    IO::Pause(1);
+    if ( effect == SkillEffect::Attack ) {
+      if ( IsHit(is_enemy) ) {
+        value = CalculateDamage(value, is_enemy);
+        if ( IsCrit(is_enemy) ) {
+          value = value * 150 / 100;
+          IO::PrintBattleCrit();
+        }
+        if ( is_enemy ) {
+          dogdoing.MinusHp(value);
+          IO::PrintBattleDamage(enemy.GetName(), dogdoing.GetName(), value);
+          IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
+        } else {
+          enemy.MinusHp(value);
+          IO::PrintBattleDamage(dogdoing.GetName(), enemy.GetName(), value);
+          IO::PrintBattleHpInfo(enemy.GetCreatureInfo());
+        }
       } else {
-        enemy.MinusHp(value);
-        IO::PrintBattleDamage(dogdoing.GetName(), enemy.GetName(), value);
-        IO::PrintBattleHpInfo(enemy.GetCreatureInfo());
+        IO::PrintBattleDoesNotHit();
       }
-    } else {
-      IO::PrintBattleDoesNotHit();
-    }
-  } else if ( effect == SkillEffect::Heal ) {
-    if ( is_enemy ) {
-      enemy.Heal(value);
-      IO::PrintBattleHeal(enemy.GetName(), value);
-      IO::PrintBattleHpInfo(enemy.GetCreatureInfo());
-    } else {
-      IO::PrintBattleHeal(dogdoing.GetName(), value);
-      IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
-      dogdoing.Heal(value);
-    }
-  } else if ( effect == SkillEffect::Defend ) {
+    } else if ( effect == SkillEffect::Heal ) {
+      if ( is_enemy ) {
+        enemy.Heal(value);
+        IO::PrintBattleHeal(enemy.GetName(), value);
+        IO::PrintBattleHpInfo(enemy.GetCreatureInfo());
+      } else {
+        dogdoing.Heal(value);
+        IO::PrintBattleHeal(dogdoing.GetName(), value);
+        IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
+      }
+    } else if ( effect == SkillEffect::Defend ) {
 
-  } else if ( effect == SkillEffect::Buff ) {
+    } else if ( effect == SkillEffect::Buff ) {
 
+    }
   }
 }
 

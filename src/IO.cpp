@@ -554,7 +554,7 @@ void IO::PrintUseSkill(std::string name, std::string skill_name) {
 
 void IO::PrintBattleRoundStart(std::string name) {
   PrintDot(2);
-  std::cout << name + "的攻擊" << std::endl;
+  std::cout << name + "的回合" << std::endl;
 }
 
 void IO::PrintBattleStart(std::string user, std::string enemy, int is_advantage) {
@@ -656,7 +656,11 @@ void IO::PrintSkillResult(std::string attacker,
     } else if ( detail.effect == SkillEffect::Defend ) {
       std::cout << "獲得 " << detail.value << "點防禦";
     } else if ( detail.effect == SkillEffect::Buff ) {
-      std::cout << "提升 " << detail.value << "點能力";
+      if ( detail.detail_text == "" ) {
+        std::cout << "獲得強化效果";
+      } else {
+        std::cout << detail.detail_text;
+      }
     }
   }
 
@@ -751,7 +755,33 @@ void IO::CreatureListSkill(std::vector<std::string> skill_list, const int cd_lis
   }
 }
 
-void IO::EnemyPrintBattleInfo(CreatureInfo info) {
+void IO::CreatureListBuff(const std::vector<BuffInfo>& buff_list) {
+  Divider();
+  std::cout <<  "  Buff：" << std::endl;
+  Divider();
+  int n = buff_list.size();
+  int ith = 1;
+  bool has_buff = false;
+  for ( int i = 0; i < n; i++ ) {
+    if ( buff_list[i].buff_type == BattleBuffType::NoBuff ) {
+      continue;
+    }
+    if ( buff_list[i].buff_name == "" ) {
+      continue;
+    }
+
+    has_buff = true;
+    std::cout << "  | " << ith++ << " | 剩餘 ： "
+              << buff_list[i].round << " 回合 | "
+              << buff_list[i].buff_name << std::endl;
+  }
+
+  if ( has_buff == false ) {
+    std::cout << "  目前沒有 Buff" << std::endl;
+  }
+}
+
+void IO::PrintBattleInfo(CreatureInfo info) {
   PrintDot(9);
   std::cout << std::fixed << std::setprecision(1);
   std::cout << info.name <<  "：" << std::endl;

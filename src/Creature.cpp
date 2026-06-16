@@ -213,7 +213,7 @@ void Creature::ReduceSkillCD() {
 void Creature::ReSetSkillCD(int index) {
   index--;
   SkillID id = skill_list[index];
-  SkillInfo info = SkillDataBase::GetSkillInfo(id, attack);
+  SkillInfo info = SkillDataBase::GetSkillInfo(id);
   skill_cd[index] = info.cd;
 }
 
@@ -227,7 +227,7 @@ void Creature::ListSkill() const{
   std::vector<std::string> list;
   for ( int i = 0; i < 4; i++ ) {
     if ( skill_list[i] != SkillID::None ) {
-      SkillInfo info = SkillDataBase::GetSkillInfo(skill_list[i], attack);
+      SkillInfo info = SkillDataBase::GetSkillInfo(skill_list[i]);
       list.push_back(info.skill_name);
       list.push_back(info.skill_info);
     }

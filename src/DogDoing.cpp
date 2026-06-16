@@ -27,6 +27,7 @@ void DogDoing::Init() {
   SetSpeed(10);
   exp = 0;
   RanDomElement();
+  AddSkill(SkillID::NormalAttack);
   AddSkill(SkillID::Heal);
   AddSkill(SkillID::Vampire_Drain);
 }

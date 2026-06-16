@@ -10,17 +10,17 @@
 class Creature{
 private:
   Element element = None;
-  SkillID skill_list[4] = {SkillID::NormalAttack ,SkillID::None, SkillID::None, SkillID::None};
+  SkillID skill_list[4] = {SkillID::None ,SkillID::None, SkillID::None, SkillID::None};
   int skill_cd[4] = {0, 0 ,0 ,0};
-  int num_of_skill = 1;
+  int num_of_skill = 0;
   std::string name;
   int hp = 0;
   int max_hp = 0;
   int attack = 0;
   int speed = 0;
-  int hit_rate = 90;             // 命中率
+  int hit_rate = 95;             // 命中率
   int crit_rate = 20;            // 爆擊率
-  int dodge_rate = 10;           // 閃避率
+  int dodge_rate = 5;           // 閃避率
   int damage_increase = 0;       // 增傷
   int ult_energy = 0;
   int max_ult_energy = 100;

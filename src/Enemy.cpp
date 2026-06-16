@@ -20,7 +20,7 @@ void Enemy::SetCoinReward(int coin_reward) {
 }
 
 void Enemy::PrintBattleInfo() const {
-  IO::EnemyPrintBattleInfo(GetCreatureInfo());
+  IO::PrintBattleInfo(GetCreatureInfo());
   ListSkill();
 }
 
@@ -32,7 +32,7 @@ Slime::Slime() {
   SetSpeed(3);
   SetExpReward(12);
   SetCoinReward(5);
-  SetNumOfSkill(1);
+  AddSkill(SkillID::NormalAttack);
   AddSkill(SkillID::Heal);
   AddSkill(SkillID::Slime_Attack);
 }
@@ -74,7 +74,7 @@ Goblin::Goblin() {
   SetSpeed(8);
   SetExpReward(25);
   SetCoinReward(10);
-  SetNumOfSkill(1);
+  AddSkill(SkillID::NormalAttack);
   SetElement(Element::None);
   AddSkill(SkillID::Goblin_Bash);
   AddSkill(SkillID::Goblin_Stab);
@@ -83,14 +83,15 @@ Goblin::Goblin() {
 
 Vampire::Vampire() {
   SetName("吸血鬼");
-  SetHp(100);
-  SetMaxHp(100);
+  SetHp(80);
+  SetMaxHp(80);
   SetSpeed(15);
   SetATK(16);
   SetExpReward(50);
   SetCoinReward(20);
-  SetNumOfSkill(1);
   SetElement(Element::Dark);
-  AddSkill(SkillID::Vampire_Claw);
+  AddSkill(SkillID::Vampire_Normal);
+  AddSkill(SkillID::Vampire_BloodLust);
   AddSkill(SkillID::Vampire_Drain);
+  AddSkill(SkillID::Vampire_Blood_Mist);
 }

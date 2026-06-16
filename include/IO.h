@@ -97,7 +97,8 @@ public:
   static void PrintUserGetCoin(std::string name, int coin);
   static void PrintBattleHelp();
   static void CreatureListSkill(std::vector<std::string> skill_list, const int cd_list[4]);
-  static void EnemyPrintBattleInfo(CreatureInfo info);
+  static void CreatureListBuff(const std::vector<BuffInfo>& buff_list);
+  static void PrintBattleInfo(CreatureInfo info);
   static void BattleQuitCheck();
   static void BattleQuitHelp();
   static void BattleQuit();

@@ -5,28 +5,34 @@
 #include <vector>
 
 enum class SkillEffect {    // 技能效果
-  None, Attack, Heal, Defend, Buff
+  None, Attack, Heal, Defend, Buff, BonusTurn
 };
 
 enum class SkillID {        //   角色存取的都是ID，用的時候才會用ID查功能
   None, NormalAttack, Heal, 
   Slime_Attack, 
   Goblin_warCry, Goblin_SneakAttack, Goblin_Bash,
-  Vampire_Normal, Vampire_Drain, Vampire_BloodLust, Vampire_Blood_Mist
+  Vampire_Normal, Vampire_Drain, Vampire_BloodLust, Vampire_Blood_Mist,
+  DemonHunter_ExecutionStance, DemonHunter_DemonPiercingBolt, DemonHunter_HolyPurge
 };
 
 enum class SkillControl{    // 技能分成需要命中或是直接生效（為了吸血攻擊設計）
- None, Always, AttackHit
+ None, Always, AttackHit, AttackCrit
 };
 
 enum class BattleBuffType{
   NoBuff, AddAttack, AddHp, AddMaxHp, AddDamageIncrease, AddHitRate, AddDodgeRate, AddCritRate, AddSpeed,
-  AddDefend, AddMaxHpPercent
+  AddDefend, AddMaxHpPercent, DotDamage, HotHeal, ExtraTurnOnCrit
 };
 
 enum class BuffTarget {
   Self,
   Opponent
+};
+
+enum class BuffValueType {
+  Fixed,
+  Percent
 };
 
 enum class SkillValueType {     //不只有用攻擊力出傷得角色
@@ -41,6 +47,7 @@ enum class SkillValueType {     //不只有用攻擊力出傷得角色
 struct BuffInfo {                 // buff詳情
   BattleBuffType buff_type;  
   BuffTarget target;
+  BuffValueType value_type;
   std::string buff_name;     
   int round;                       //持續時間
   int value;

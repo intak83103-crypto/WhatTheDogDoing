@@ -110,18 +110,20 @@ void DogDoing::RanDomElement() {
     return;
   }
     
-  int element = Random::RandomInt(1, 5);
+  int element = Random::RandomInt(1, 6);
     
   if ( element == 1 ) {
-    SetElement(Element::Dark);
-  } else if ( element == 2 ) {
     SetElement(Element::Fire);
+  } else if ( element == 2 ) {
+    SetElement(Element::Water);
   } else if ( element == 3 ) {
     SetElement(Element::Grass);
   } else if ( element == 4 ) {
     SetElement(Element::Thunder);
   } else if ( element == 5 ) {
-    SetElement(Element::Water);
+    SetElement(Element::Dark);
+  } else if ( element == 6 ) {
+    SetElement(Element::Light);
   } 
 }
 

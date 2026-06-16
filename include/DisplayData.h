@@ -5,7 +5,7 @@
 #include "skill.h"
 
 enum Element{
-  Fire, Water, Thunder, Grass, Dark, None
+  Fire, Water, Thunder, Grass, Dark, Light, None
 };
 
 struct DDtitleInfo{

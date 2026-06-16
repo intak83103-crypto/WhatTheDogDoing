@@ -48,6 +48,11 @@ public:
   DarkSlime();
 };
 
+class LightSlime : public Slime {
+public:
+  LightSlime();
+};
+
 class Goblin : public Enemy {
 public:
   Goblin();
@@ -58,5 +63,9 @@ public:
   Vampire();
 };
 
+class DemonHunter : public Enemy {
+public:
+  DemonHunter();
+};
 
 #endif

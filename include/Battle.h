@@ -66,7 +66,7 @@ public:
   void DDTurn(bool bonus_turn = false);
   void EnemyTurn(bool bonus_turn = false);
   bool IsDigit(std::string str);
-  void SkillEffectApply(bool is_enemy, SkillInfo SkillInfo);
+  bool SkillEffectApply(bool is_enemy, SkillInfo SkillInfo);
   int CalculateSkillValue(bool is_enemy, SkillDetail skill_detail);
   void SetElementBonus();
   bool EnemyShouldUseSkill(int index);
@@ -74,6 +74,8 @@ public:
   std::string ToLower(std::string str);
   BattleOperate GetOp(std::string);
   void SetBattleTempValue(bool is_enemy);
+  bool HasBuff(bool is_enemy, BattleBuffType buff_type);
+  int CalculateBuffValue(bool is_enemy, BuffInfo buff_info);
   void ApplyBuff(bool is_enemy, std::vector<BuffInfo> buff);
   void ApplyEraseBuff(bool is_enemy, BuffInfo erase_buff);
   void ReduceBuffRound(bool is_enemy);

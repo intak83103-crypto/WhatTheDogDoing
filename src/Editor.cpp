@@ -370,7 +370,7 @@ void Editor::OperateSelectTargetDD(Operate op, std::string str) {
 
 void Editor::BattleTest() {
   int selected_enemy = 1;
-  int enemy_count = 7;
+  int enemy_count = 9;
   std::string op;
 
   IO::PrintBattleTestMenu(selected_enemy);
@@ -431,12 +431,20 @@ void Editor::StartBattleTest(int enemy_index) {
     Battle battle(user, user.GetCurrentDD(), enemy);
     battle.Run();
   } else if ( enemy_index == 6 ) {
-    Goblin enemy;
+    LightSlime enemy;
     Battle battle(user, user.GetCurrentDD(), enemy);
     battle.Run();
   } else if ( enemy_index == 7 ) {
+    Goblin enemy;
+    Battle battle(user, user.GetCurrentDD(), enemy);
+    battle.Run();
+  } else if ( enemy_index == 8 ) {
     Vampire enemy;
     Battle battle(user, user.GetCurrentDD(), enemy );
+    battle.Run();
+  } else if ( enemy_index == 9 ) {
+    DemonHunter enemy;
+    Battle battle(user, user.GetCurrentDD(), enemy);
     battle.Run();
   }
 }

@@ -292,7 +292,14 @@ void Battle::DDTurn(bool bonus_turn) {
             dogdoing.ReSetSkillCD(select_skill);
             select_skill = -1;
             SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id);
-            SkillEffectApply(false, skill_info);
+            bool get_bonus_turn = SkillEffectApply(false, skill_info);
+            if ( bonus_turn == false ) {
+              dogdoing.ReduceSkillCD();
+              ReduceBuffRound(false);
+            }
+            if ( get_bonus_turn && IsBattleOver() == false && game_run == true ) {
+              DDTurn(true);
+            }
             return;
           } else {
             IO::PrintSkillUnready();
@@ -330,7 +337,6 @@ void Battle::DDTurn(bool bonus_turn) {
     }
     
   }
-  IO::Pause(1);
   if ( bonus_turn == false ) {
     dogdoing.ReduceSkillCD();
     ReduceBuffRound(false);
@@ -341,7 +347,6 @@ void Battle::EnemyTurn(bool bonus_turn) {
   IO::PrintBattleRoundStart(enemy.GetName());
   int use_skill = 1;
   SkillID skill_id = SkillID::None;
-  IO::Pause(1);
   if ( enemy.GetNumOfSkill() > 1 ) {
     use_skill = Random::RandomInt(2, enemy.GetNumOfSkill());
     int try_count = 0;
@@ -365,10 +370,13 @@ void Battle::EnemyTurn(bool bonus_turn) {
   }
   SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id);
   enemy.ReSetSkillCD(use_skill);
-  SkillEffectApply(true, skill_info);
+  bool get_bonus_turn = SkillEffectApply(true, skill_info);
   if ( bonus_turn == false ) {
     enemy.ReduceSkillCD();
     ReduceBuffRound(true);
+  }
+  if ( get_bonus_turn && IsBattleOver() == false && game_run == true ) {
+    EnemyTurn(true);
   }
 }
 
@@ -386,6 +394,77 @@ bool Battle::EnemyShouldUseSkill(int index) {
   }
 
   return true;
+}
+
+bool Battle::HasBuff(bool is_enemy, BattleBuffType buff_type) {
+  if ( is_enemy ) {
+    for ( BuffInfo buff_info : enemy_buff ) {
+      if ( buff_info.buff_type == buff_type ) {
+        return true;
+      }
+    }
+  } else {
+    for ( BuffInfo buff_info : dd_buff ) {
+      if ( buff_info.buff_type == buff_type ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+int Battle::CalculateBuffValue(bool is_enemy, BuffInfo buff_info) {
+  if ( buff_info.value_type == BuffValueType::Fixed ) {
+    return buff_info.value;
+  }
+
+  if ( buff_info.buff_type == BattleBuffType::AddAttack ) {
+    if ( is_enemy ) {
+      return enemy_value.base_attack * buff_info.value / 100;
+    }
+    return dd_value.base_attack * buff_info.value / 100;
+  } else if ( buff_info.buff_type == BattleBuffType::AddMaxHp ||
+              buff_info.buff_type == BattleBuffType::AddMaxHpPercent ) {
+    if ( is_enemy ) {
+      return enemy_value.base_max_hp * buff_info.value / 100;
+    }
+    return dd_value.base_max_hp * buff_info.value / 100;
+  } else if ( buff_info.buff_type == BattleBuffType::AddHp ) {
+    if ( is_enemy ) {
+      return enemy_value.base_max_hp * buff_info.value / 100;
+    }
+    return dd_value.base_max_hp * buff_info.value / 100;
+  } else if ( buff_info.buff_type == BattleBuffType::HotHeal ) {
+    if ( is_enemy ) {
+      int max_hp = enemy_value.base_max_hp + enemy_value.temp_max_hp;
+      return max_hp * buff_info.value / 100;
+    }
+    int max_hp = dd_value.base_max_hp + dd_value.temp_max_hp;
+    return max_hp * buff_info.value / 100;
+  } else if ( buff_info.buff_type == BattleBuffType::AddSpeed ) {
+    if ( is_enemy ) {
+      return enemy_value.base_speed * buff_info.value / 100;
+    }
+    return dd_value.base_speed * buff_info.value / 100;
+  } else if ( buff_info.buff_type == BattleBuffType::AddCritRate ) {
+    if ( is_enemy ) {
+      return enemy_value.base_crit_rate * buff_info.value / 100;
+    }
+    return dd_value.base_crit_rate * buff_info.value / 100;
+  } else if ( buff_info.buff_type == BattleBuffType::AddHitRate ) {
+    if ( is_enemy ) {
+      return enemy_value.base_hit_rate * buff_info.value / 100;
+    }
+    return dd_value.base_hit_rate * buff_info.value / 100;
+  } else if ( buff_info.buff_type == BattleBuffType::AddDodgeRate ) {
+    if ( is_enemy ) {
+      return enemy_value.base_dodge_rate * buff_info.value / 100;
+    }
+    return dd_value.base_dodge_rate * buff_info.value / 100;
+  }
+
+  return buff_info.value;
 }
 
 void Battle::ApplyBuff(bool is_enemy, std::vector<BuffInfo> buff) {
@@ -419,6 +498,8 @@ void Battle::ApplyBuff(bool is_enemy, std::vector<BuffInfo> buff) {
     if ( same_buff ) {
       continue;;
     }
+
+    buff[i].value = CalculateBuffValue(is_enemy, buff[i]);
     
     if ( is_enemy ) {
       enemy_buff.push_back(buff[i]);
@@ -483,11 +564,17 @@ void Battle::ApplyBuff(bool is_enemy, std::vector<BuffInfo> buff) {
       }
     } else if ( buff[i].buff_type == BattleBuffType::AddMaxHpPercent ) {
       if ( is_enemy ) {
-        enemy_value.temp_max_hp += buff[i].value * enemy_value.base_max_hp / 100;
+        enemy_value.temp_max_hp += buff[i].value;
       }
       else {
-        dd_value.temp_max_hp += buff[i].value * dd_value.base_max_hp / 100;        
+        dd_value.temp_max_hp += buff[i].value;        
       }
+    } else if ( buff[i].buff_type == BattleBuffType::DotDamage ) {
+
+    } else if ( buff[i].buff_type == BattleBuffType::HotHeal ) {
+
+    } else if ( buff[i].buff_type == BattleBuffType::ExtraTurnOnCrit ) {
+
     }
  
   }
@@ -553,11 +640,17 @@ void Battle::ApplyEraseBuff(bool is_enemy, BuffInfo erase_buff) {
       }    
   } else if ( erase_buff.buff_type == BattleBuffType::AddMaxHpPercent ) {
     if ( is_enemy ) {
-      enemy_value.temp_max_hp -= erase_buff.value * enemy_value.base_max_hp / 100;
+      enemy_value.temp_max_hp -= erase_buff.value;
     } else {
-      dd_value.temp_max_hp -= erase_buff.value * dd_value.base_max_hp / 100;
+      dd_value.temp_max_hp -= erase_buff.value;
     }
     ClampBattleHp(is_enemy);
+  } else if ( erase_buff.buff_type == BattleBuffType::DotDamage ) {
+    return;
+  } else if ( erase_buff.buff_type == BattleBuffType::HotHeal ) {
+    return;
+  } else if ( erase_buff.buff_type == BattleBuffType::ExtraTurnOnCrit ) {
+    return;
   }
 }
 void Battle::ReduceBuffRound(bool is_enemy) {
@@ -566,6 +659,23 @@ void Battle::ReduceBuffRound(bool is_enemy) {
     std::vector<int> erase_buff;
     for ( int i = 0; i < n; i++ ) {
       enemy_buff[i].round -= 1;
+      if ( enemy_buff[i].buff_type == BattleBuffType::DotDamage ) {
+        if ( enemy_buff[i].round >= 0 ) {
+          enemy.MinusHp(enemy_buff[i].value);
+          IO::PrintBuffDamage(enemy.GetName(),
+                              enemy_buff[i].buff_name,
+                              enemy_buff[i].value);
+          IO::PrintBattleHpInfo(GetBattleCreatureInfo(true));
+        }
+      } else if ( enemy_buff[i].buff_type == BattleBuffType::HotHeal ) {
+        if ( enemy_buff[i].round >= 0 ) {
+          int heal = BattleHeal(true, enemy_buff[i].value);
+          IO::PrintBuffHeal(enemy.GetName(),
+                            enemy_buff[i].buff_name,
+                            heal);
+          IO::PrintBattleHpInfo(GetBattleCreatureInfo(true));
+        }
+      }
       if ( enemy_buff[i].round < 0 ) {
         erase_buff.push_back(i);
       }
@@ -580,6 +690,23 @@ void Battle::ReduceBuffRound(bool is_enemy) {
     std::vector<int> erase_buff;
     for ( int i = 0; i < n; i++ ) {
       dd_buff[i].round -= 1;
+      if ( dd_buff[i].buff_type == BattleBuffType::DotDamage ) {
+        if ( dd_buff[i].round >= 0 ) {
+          dogdoing.MinusHp(dd_buff[i].value);
+          IO::PrintBuffDamage(dogdoing.GetName(),
+                              dd_buff[i].buff_name,
+                              dd_buff[i].value);
+          IO::PrintBattleHpInfo(GetBattleCreatureInfo(false));
+        }
+      } else if ( dd_buff[i].buff_type == BattleBuffType::HotHeal ) {
+        if ( dd_buff[i].round >= 0 ) {
+          int heal = BattleHeal(false, dd_buff[i].value);
+          IO::PrintBuffHeal(dogdoing.GetName(),
+                            dd_buff[i].buff_name,
+                            heal);
+          IO::PrintBattleHpInfo(GetBattleCreatureInfo(false));
+        }
+      }
       if ( dd_buff[i].round < 0 ) {
         erase_buff.push_back(i);
       }
@@ -646,10 +773,13 @@ int Battle::CalculateSkillValue(bool is_enemy, SkillDetail skill_detail) {
   return skill_detail.value;
 }
 
-void Battle::SkillEffectApply(bool is_enemy, SkillInfo skill_info) {
+bool Battle::SkillEffectApply(bool is_enemy, SkillInfo skill_info) {
   int n = skill_info.skill_detail.size();
   IO::Pause(1);
   bool hit = true;
+  bool last_attack_crit = false;
+  bool get_bonus_turn = false;
+  bool bonus_turn_result_added = false;
   int last_attack_damage = 0;
   SkillResult result;
   result.skill_name = skill_info.skill_name;
@@ -659,6 +789,10 @@ void Battle::SkillEffectApply(bool is_enemy, SkillInfo skill_info) {
     int value = CalculateSkillValue(is_enemy, skill_detail);
     SkillEffect effect = skill_detail.effect;
     if ( hit == false && skill_detail.control == SkillControl::AttackHit ) {  // 處理需要命中才生效的技能
+      continue;
+    }
+    if ( last_attack_crit == false &&
+         skill_detail.control == SkillControl::AttackCrit ) {
       continue;
     }
     IO::Pause(1);
@@ -671,6 +805,11 @@ void Battle::SkillEffectApply(bool is_enemy, SkillInfo skill_info) {
           value = value * 150 / 100;
           is_crit = true;
         }
+        last_attack_crit = is_crit;
+        if ( is_crit &&
+             HasBuff(is_enemy, BattleBuffType::ExtraTurnOnCrit) ) {
+          get_bonus_turn = true;
+        }
         last_attack_damage = value;
         if ( is_enemy ) {
           dogdoing.MinusHp(value);
@@ -678,8 +817,13 @@ void Battle::SkillEffectApply(bool is_enemy, SkillInfo skill_info) {
           enemy.MinusHp(value);
         }
         result.details.push_back({effect, value, true, is_crit});
+        if ( get_bonus_turn && bonus_turn_result_added == false ) {
+          result.details.push_back({SkillEffect::BonusTurn, 0, true});
+          bonus_turn_result_added = true;
+        }
       } else {
         hit = false;
+        last_attack_crit = false;
         last_attack_damage = 0;
         result.details.push_back({effect, 0, false});
       }
@@ -698,6 +842,16 @@ void Battle::SkillEffectApply(bool is_enemy, SkillInfo skill_info) {
         if ( buff_info.buff_type == BattleBuffType::NoBuff ) {
           continue;
         }
+        if ( buff_info.buff_type == BattleBuffType::DotDamage &&
+             buff_info.value_type == BuffValueType::Percent ) {
+          if ( is_enemy ) {
+            int max_hp = enemy_value.base_max_hp + enemy_value.temp_max_hp;
+            buff_info.value = max_hp * buff_info.value / 100;
+          } else {
+            int max_hp = dd_value.base_max_hp + dd_value.temp_max_hp;
+            buff_info.value = max_hp * buff_info.value / 100;
+          }
+        }
         if ( buff_info.target == BuffTarget::Self ) {
           ApplyBuff(is_enemy, {buff_info});
         } else if ( buff_info.target == BuffTarget::Opponent ) {
@@ -714,6 +868,12 @@ void Battle::SkillEffectApply(bool is_enemy, SkillInfo skill_info) {
           });
         }
       }
+    } else if ( effect == SkillEffect::BonusTurn ) {
+      get_bonus_turn = true;
+      if ( bonus_turn_result_added == false ) {
+        result.details.push_back({effect, 0, true});
+        bonus_turn_result_added = true;
+      }
     }
   }
 
@@ -724,6 +884,7 @@ void Battle::SkillEffectApply(bool is_enemy, SkillInfo skill_info) {
   }
   IO::PrintBattleHpInfo(GetBattleCreatureInfo(false));
   IO::PrintBattleHpInfo(GetBattleCreatureInfo(true));
+  return get_bonus_turn;
 }
 
 bool Battle::IsDigit(std::string str)  {
@@ -738,45 +899,43 @@ bool Battle::IsDigit(std::string str)  {
 void Battle::SetElementBonus() {
   Element dd_element = dogdoing.GetElement();
   Element enemy_element = enemy.GetElement();
-  if ( dd_element == Element::Dark && enemy_element == Element::Water ) {
+
+  if ( (dd_element == Element::Dark && enemy_element == Element::Light) ||
+       (dd_element == Element::Light && enemy_element == Element::Dark) ) {
     dd_value.temp_damage_increase += 20;
-    enemy_value.temp_damage_increase -= 20;
+    enemy_value.temp_damage_increase += 20;
     is_advantage = 1;
-  } else if ( dd_element == Element::Water && enemy_element == Element::Fire ) {
-    dd_value.temp_damage_increase += 20;
-    enemy_value.temp_damage_increase -= 20;
-    is_advantage = 1;
-  } else if ( dd_element == Element::Fire && enemy_element == Element::Grass ) {
-    dd_value.temp_damage_increase += 20;
-    enemy_value.temp_damage_increase -= 20;
-    is_advantage = 1;
-  } else if ( dd_element == Element::Grass && enemy_element == Element::Thunder ) {
-    dd_value.temp_damage_increase += 20;
-    enemy_value.temp_damage_increase -= 20;
-    is_advantage = 1;
-  } else if ( dd_element == Element::Thunder && enemy_element == Element::Dark ) {
-    dd_value.temp_damage_increase += 20;
-    enemy_value.temp_damage_increase -= 20;
-    is_advantage = 1;
+    return;
   }
 
-  if ( enemy_element == Element::Dark && dd_element == Element::Water ) {
-    dd_value.temp_damage_increase -= 20;
-    enemy_value.temp_damage_increase += 20;
-    is_advantage = 2;
-  } else if ( enemy_element == Element::Water && dd_element == Element::Fire ) {
-    dd_value.temp_damage_increase -= 20;
-    enemy_value.temp_damage_increase += 20;
-    is_advantage = 2;
+  bool dd_advantage = false;
+  bool enemy_advantage = false;
+
+  if ( dd_element == Element::Water && enemy_element == Element::Fire ) {
+    dd_advantage = true;
+  } else if ( dd_element == Element::Fire && enemy_element == Element::Grass ) {
+    dd_advantage = true;
+  } else if ( dd_element == Element::Grass && enemy_element == Element::Thunder ) {
+    dd_advantage = true;
+  } else if ( dd_element == Element::Thunder && enemy_element == Element::Water ) {
+    dd_advantage = true;
+  }
+
+  if ( enemy_element == Element::Water && dd_element == Element::Fire ) {
+    enemy_advantage = true;
   } else if ( enemy_element == Element::Fire && dd_element == Element::Grass ) {
-    dd_value.temp_damage_increase -= 20;
-    enemy_value.temp_damage_increase += 20;
-   is_advantage = 2;
+    enemy_advantage = true;
   } else if ( enemy_element == Element::Grass && dd_element == Element::Thunder ) {
-    dd_value.temp_damage_increase -= 20;
-    enemy_value.temp_damage_increase += 20;
-    is_advantage = 2;
-  } else if ( enemy_element == Element::Thunder && dd_element == Element::Dark ) {
+    enemy_advantage = true;
+  } else if ( enemy_element == Element::Thunder && dd_element == Element::Water ) {
+    enemy_advantage = true;
+  }
+
+  if ( dd_advantage ) {
+    dd_value.temp_damage_increase += 20;
+    enemy_value.temp_damage_increase -= 20;
+    is_advantage = 1;
+  } else if ( enemy_advantage ) {
     dd_value.temp_damage_increase -= 20;
     enemy_value.temp_damage_increase += 20;
     is_advantage = 2;

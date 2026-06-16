@@ -66,6 +66,11 @@ DarkSlime::DarkSlime() : Slime(){
   SetName("暗史萊姆");
 }
 
+LightSlime::LightSlime() : Slime(){
+  SetElement(Element::Light);
+  SetName("光史萊姆");
+}
+
 Goblin::Goblin() {
   SetName("哥布林");
   SetHp(72);
@@ -86,7 +91,7 @@ Vampire::Vampire() {
   SetHp(80);
   SetMaxHp(80);
   SetSpeed(15);
-  SetATK(16);
+  SetATK(5);
   SetExpReward(50);
   SetCoinReward(20);
   SetElement(Element::Dark);
@@ -95,3 +100,19 @@ Vampire::Vampire() {
   AddSkill(SkillID::Vampire_Drain);
   AddSkill(SkillID::Vampire_Blood_Mist);
 }
+
+DemonHunter::DemonHunter() {
+  SetName("獵魔士");
+  SetHp(95);
+  SetMaxHp(95);
+  SetSpeed(12);
+  SetATK(12);
+  SetExpReward(55);
+  SetCoinReward(30);
+  SetElement(Element::Light);
+  AddSkill(SkillID::NormalAttack);
+  AddSkill(SkillID::DemonHunter_HolyPurge);
+  AddSkill(SkillID::DemonHunter_DemonPiercingBolt);
+  AddSkill(SkillID::DemonHunter_ExecutionStance);
+}
+

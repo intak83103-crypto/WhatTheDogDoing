@@ -84,6 +84,12 @@ public:
   static void PrintDots();
   static void PrintSkillUnready();
   static void PrintBattleHeal(std::string attacker, int heal);
+  static void PrintBuffDamage(std::string target,
+                              std::string buff_name,
+                              int damage);
+  static void PrintBuffHeal(std::string target,
+                            std::string buff_name,
+                            int heal);
   static void PrintSkillResult(std::string attacker,
                                std::string target,
                                SkillResult result);

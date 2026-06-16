@@ -29,10 +29,16 @@ std::string BattleTestEnemyName(int index) {
     return "暗史萊姆";
   }
   if ( index == 6 ) {
-    return "哥布林";
+    return "光史萊姆";
   }
   if ( index == 7 ) {
+    return "哥布林";
+  }
+  if ( index == 8 ) {
     return "吸血鬼";
+  }
+  if ( index == 9 ) {
+    return "獵魔士";
   }
   return "未知怪物";
 }
@@ -203,6 +209,8 @@ void IO::PrintDDtitle(DDtitleInfo title) {
     std::cout << " |   水   ";
   } else if ( element == Element::Dark ) {
     std::cout << " |   暗   ";
+  } else if ( element == Element::Light ) {
+    std::cout << " |   光   ";
   }
 
   std::cout << " | LV." << std::setfill('0') << std::setw(2) 
@@ -619,6 +627,26 @@ void IO::PrintBattleHeal(std::string attacker, int heal) {
   Divider();
 }
 
+void IO::PrintBuffDamage(std::string target,
+                         std::string buff_name,
+                         int damage) {
+  PrintDot(1);
+  Divider();
+  std::cout << "  > " << target << "因為 " << buff_name
+            << " 受到 " << damage << "點傷害" << std::endl;
+  Divider();
+}
+
+void IO::PrintBuffHeal(std::string target,
+                       std::string buff_name,
+                       int heal) {
+  PrintDot(1);
+  Divider();
+  std::cout << "  > " << target << "因為 " << buff_name
+            << " 回復 " << heal << "點血量" << std::endl;
+  Divider();
+}
+
 void IO::PrintSkillResult(std::string attacker,
                           std::string target,
                           SkillResult result) {
@@ -661,6 +689,8 @@ void IO::PrintSkillResult(std::string attacker,
       } else {
         std::cout << detail.detail_text;
       }
+    } else if ( detail.effect == SkillEffect::BonusTurn ) {
+      std::cout << "獲得額外回合";
     }
   }
 
@@ -679,7 +709,7 @@ void IO::PrintBattleTestMenu(int selected) {
   Divider();
   std::cout << "輸入數字切換測試怪物，輸入 start 開始戰鬥" << std::endl;
   Divider();
-  for ( int i = 0; i < 7; i++ ) {
+  for ( int i = 0; i < 9; i++ ) {
     std::cout << i + 1;
     if ( i + 1 == selected ) {
       std::cout << "  >  ";
@@ -772,7 +802,7 @@ void IO::CreatureListBuff(const std::vector<BuffInfo>& buff_list) {
 
     has_buff = true;
     std::cout << "  | " << ith++ << " | 剩餘 ： "
-              << buff_list[i].round << " 回合 | "
+              << buff_list[i].round + 1 << " 回合 | "
               << buff_list[i].buff_name << std::endl;
   }
 

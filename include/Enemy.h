@@ -14,6 +14,7 @@ public:
   void SetExpReward(int exp_reward);
   void SetCoinReward(int coin_reward);
   void PrintInfo() const override;
+  void PrintBattleInfo() const override;
 };
 
 
@@ -50,6 +51,11 @@ public:
 class Goblin : public Enemy {
 public:
   Goblin();
+};
+
+class Vampire : public Enemy {
+public:
+  Vampire();
 };
 
 

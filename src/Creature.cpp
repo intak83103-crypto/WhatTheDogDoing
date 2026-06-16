@@ -222,3 +222,15 @@ void Creature::ResetSkillCD() {
     skill_cd[i] = 0;
   }
 }
+
+void Creature::ListSkill() const{
+  std::vector<std::string> list;
+  for ( int i = 0; i < 4; i++ ) {
+    if ( skill_list[i] != SkillID::None ) {
+      SkillInfo info = SkillDataBase::GetSkillInfo(skill_list[i], attack);
+      list.push_back(info.skill_name);
+      list.push_back(info.skill_info);
+    }
+  }
+  IO::CreatureListSkill(list, skill_cd);
+}

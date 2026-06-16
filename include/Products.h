@@ -9,9 +9,15 @@ public:
   void Apply(User& user) const override;
 };
 
-class ProductHealPotion : public Product {
+class ProductSmallHealPotion : public Product {
 public:
-  ProductHealPotion();
+  ProductSmallHealPotion();
+  void Apply(User& user) const override;
+};
+
+class ProductSmallExpPotion : public Product {
+public:
+  ProductSmallExpPotion();
   void Apply(User& user) const override;
 };
 

@@ -200,8 +200,7 @@ void Editor::OperateDogDoing(Operate op, std::string str) {
   } else if ( op == Operate::Backpack ) {
     control = Control::Backpack;
     IO::PrintSwitchBackpack();
-    std::vector<std::string> backpack;
-    user.ListBackpack();
+    user.ListBackpack(false);
   } else if ( op == Operate::BattleTest ) {
     BattleTest();
   }
@@ -252,10 +251,12 @@ void Editor::OperateBuy(Operate op, std::string str ) {
     shop.Buy(buy_index, user);
     control = Control::Shop;
     buy_index = -1;
+    shop.ListProduct(user.GetCoin());
   } else if ( op == Operate::CancelBuy ) {
     IO::PrintBuyCancel();
     control = Control::Shop;
     buy_index = -1;
+    shop.ListProduct(user.GetCoin());
   } else if ( op == Operate::Unknown ) {
     IO::PrintInputError(str);
   }
@@ -341,6 +342,7 @@ void Editor::OperateBackpack(Operate op, std::string str) {
       return;
     }
     user.UseItem(use_item_of_bp);
+    user.ListBackpack(false);
     use_item_of_bp = -1;
   }
 }
@@ -362,12 +364,13 @@ void Editor::OperateSelectTargetDD(Operate op, std::string str) {
       use_item_of_bp = -1;
       select_dd_index = -1;
       control = Control::Backpack;
+      user.ListBackpack(false);
     }
   }
 
 void Editor::BattleTest() {
   int selected_enemy = 1;
-  int enemy_count = 6;
+  int enemy_count = 7;
   std::string op;
 
   IO::PrintBattleTestMenu(selected_enemy);
@@ -431,12 +434,17 @@ void Editor::StartBattleTest(int enemy_index) {
     Goblin enemy;
     Battle battle(user, user.GetCurrentDD(), enemy);
     battle.Run();
+  } else if ( enemy_index == 7 ) {
+    Vampire enemy;
+    Battle battle(user, user.GetCurrentDD(), enemy );
+    battle.Run();
   }
 }
 
 void Editor::SetUpShop() {
   shop.AddProduct(new ProductDD());
-  shop.AddProduct(new ProductHealPotion());
+  shop.AddProduct(new ProductSmallHealPotion());
+  shop.AddProduct(new ProductSmallExpPotion());
 }
 
 std::vector<std::string> Editor::GetUserNameArray() const {
@@ -454,7 +462,7 @@ void Editor::Run() {
   IO::PrintHelpHint();
   std::string str;
   Operate op = Operate::None;
-  while ( op != Operate::Quit ) {
+  while ( op != Operate::Quit ) {     
     IO::PrintOperateWating();
     if ( !IO::GetToken(str) ) {
       IO::PrintCinError();

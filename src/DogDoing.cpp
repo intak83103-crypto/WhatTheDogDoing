@@ -4,11 +4,17 @@
 
 
 const std::vector<DogDoing::LevelData> DogDoing::level_table = {
-  {1, 0, 50, 10},
-  {2, 20, 60, 13},
-  {3, 50, 75, 17},
-  {4, 90, 95, 22},
-  {5, 140, 120, 30}
+  // 等級， 經驗值， 血量， 攻擊， 速度
+  {1, 0,   50,  10, 10},
+  {2, 20,  58,  11, 10},
+  {3, 60,  72,  13, 11},
+  {4, 115, 83,  14, 12},
+  {5, 190, 96,  16, 14},
+  {6, 280, 104, 17, 15},
+  {7, 380, 112, 18, 15},
+  {8, 520, 130, 22, 17}
+
+
 };
 
 
@@ -22,12 +28,14 @@ void DogDoing::Init() {
   exp = 0;
   RanDomElement();
   AddSkill(SkillID::Heal);
+  AddSkill(SkillID::Vampire_Drain);
 }
 
 void DogDoing::ApplyLevelData() {
   const LevelData& data = level_table[level - 1];
   SetMaxHp(data.max_hp);
   SetATK(data.attack);
+  SetSpeed(data.spped);
   SetHp(GetMaxHp());
 }
 
@@ -42,7 +50,7 @@ DogDoing::DogDoing(int i) {
 DogDoing::DogDoing(std::string name) {
   Init();
   SetName(name);
-  IO::PrintDDSetUp({name, rank, level, GetElement()});
+  IO::PrintDDSetUp({GetName(), rank, level, GetElement()});
 }
 
 int DogDoing::GetLevel() const {
@@ -62,10 +70,19 @@ void DogDoing::PrintInfo() const {
 
 void DogDoing::AddExp(int value) {
   exp = exp + value;
+  int n = level_table.size();
+  int new_level = level;
+  IO::PrintGetExp(GetName(), value);
 
-  while ( static_cast<std::size_t>(level) < level_table.size() &&
-          exp >= level_table[level].need_exp ) {
-    level = level + 1;
+  for ( int i = 0; i < n; i++ ) {
+    if ( exp >= level_table[i].need_exp ) {
+      new_level = level_table[i].level;
+    }
+  }
+
+  if ( new_level > level ) {
+    level = new_level;
+    IO::PrintDDLevelUp(GetName());
     ApplyLevelData();
   }
 }
@@ -105,4 +122,9 @@ void DogDoing::RanDomElement() {
   } else if ( element == 5 ) {
     SetElement(Element::Water);
   } 
+}
+
+void DogDoing::PrintBattleInfo() const {
+  IO::PrintDDInfo(InfoPackage());
+  ListSkill();
 }

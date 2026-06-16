@@ -16,7 +16,6 @@ struct DDtitleInfo{
 };
 
 
-
 struct CreatureInfo{
   int hp;
   int max_hp;

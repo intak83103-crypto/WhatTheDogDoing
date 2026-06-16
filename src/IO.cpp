@@ -31,6 +31,9 @@ std::string BattleTestEnemyName(int index) {
   if ( index == 6 ) {
     return "哥布林";
   }
+  if ( index == 7 ) {
+    return "吸血鬼";
+  }
   return "未知怪物";
 }
 }
@@ -97,7 +100,6 @@ void IO::PrintDDInfo(DDInfo info) {
   std::cout << "  血量    : " << dd.hp << " / " << dd.max_hp << std::endl;
   std::cout << "  攻擊    : " << dd.attack << std::endl;
   std::cout << "  速度    : " << dd.speed << std::endl;
-  std::cout << "  技能數量: " << info.property.num_of_skill << std::endl;
 }
 
 void IO::PrintRank(int rank) {
@@ -220,6 +222,7 @@ void IO::PrintProduct(ProductInfo pd) {
 }
 
 void IO::ListProduct(const std::vector<ProductInfo>& products, int coin) {
+  PrintDot(1);
   std::cout << "持有金幣 : $" << coin << std::endl;
   std::cout << "輸入商品編號購買" << std::endl;
   Divider();
@@ -416,13 +419,16 @@ void IO::PrintBuyDone(std::string name) {
   PrintDot(9);
   Divider();
   std::cout << "已購買 : " << name << std::endl;
+  Divider();
+  PrintDot(1);
 }
 
 void IO::ListBackpack(std::string user, std::vector<BackpackInfo>& backpack, bool divider) {
   if ( divider ) {
-    PrintDot(9);
-    Divider();
+    PrintDot(8);
   }
+  PrintDot(1);
+  Divider();
   std::cout << user + "的背包 : " << std::endl;
   Divider();
   int n = backpack.size();
@@ -440,6 +446,7 @@ void IO::PrintSwitchBackpack() {
   PrintDot(9);
   Divider();
   std::cout << "已切換至背包" << std::endl;
+  Divider();
 }
 
 void IO::UseItem(std::string name) {
@@ -612,6 +619,51 @@ void IO::PrintBattleHeal(std::string attacker, int heal) {
   Divider();
 }
 
+void IO::PrintSkillResult(std::string attacker,
+                          std::string target,
+                          SkillResult result) {
+  PrintDot(2);
+  Divider();
+  std::cout << "  > " << attacker << "發動了：" << result.skill_name;
+
+  int n = result.details.size();
+  if ( n == 0 ) {
+    std::cout << "，但沒有產生效果" << std::endl;
+    Divider();
+    return;
+  }
+
+  for ( int i = 0; i < n; i++ ) {
+    SkillResultDetail detail = result.details[i];
+    if ( i == 0 ) {
+      std::cout << "，";
+    } else {
+      std::cout << "，並";
+    }
+
+    if ( detail.effect == SkillEffect::Attack ) {
+      if ( detail.success == false ) {
+        std::cout << "但是沒有命中";
+      } else {
+        std::cout << std::endl;
+        std::cout << "    " << "對" << target << "造成 " << detail.value << "點傷害";
+        if ( detail.is_crit ) {
+          std::cout << "（暴擊）";
+        }
+      }
+    } else if ( detail.effect == SkillEffect::Heal ) {
+      std::cout << "回復 " << detail.value << "點血量";
+    } else if ( detail.effect == SkillEffect::Defend ) {
+      std::cout << "獲得 " << detail.value << "點防禦";
+    } else if ( detail.effect == SkillEffect::Buff ) {
+      std::cout << "提升 " << detail.value << "點能力";
+    }
+  }
+
+  std::cout << std::endl;
+  Divider();
+}
+
 void IO::PrintBattleHpInfo(CreatureInfo info) {
   std::cout << "  > " + info.name + " : " << info.hp << " / " << info.max_hp <<  std::endl;
 }
@@ -623,7 +675,7 @@ void IO::PrintBattleTestMenu(int selected) {
   Divider();
   std::cout << "輸入數字切換測試怪物，輸入 start 開始戰鬥" << std::endl;
   Divider();
-  for ( int i = 0; i < 6; i++ ) {
+  for ( int i = 0; i < 7; i++ ) {
     std::cout << i + 1;
     if ( i + 1 == selected ) {
       std::cout << "  >  ";
@@ -657,4 +709,77 @@ void IO::PrintBattleTestError() {
   PrintDot(9);
   Divider();
   std::cout << "找不到這個測試怪物" << std::endl;
+}
+
+void IO::PrintGetExp(std::string name, int exp) {
+  PrintDot(2);
+  std::cout << name + " 獲得經驗值 ： " << exp << std::endl;
+}
+
+void IO::PrintDDLevelUp(std::string name) {
+  PrintDot(1);
+  std::cout << name + " 升級啦！" << std::endl;
+}
+
+void IO::PrintUserGetCoin(std::string name, int coin) {
+  PrintDot(3);
+  std::cout << name + " 獲得了 $" << coin << std::endl;
+  PrintDot(2); 
+}
+
+void IO::PrintBattleHelp() {
+  PrintDot(9);
+  Divider();
+  std::cout << "HELP!" << std::endl;
+  Divider();
+  std::cout << "1 ~ 4     | 發動技能" << std::endl;
+  std::cout << "Q / Quit  | 脫離戰鬥（失敗）" << std::endl;
+  std::cout << "List / L  | 列出技能列表" << std::endl;
+  std::cout << "I / Info  | 查看刀盾狀態" << std::endl;
+  std::cout << "E / Enemy | 查看敵人狀態" << std::endl;
+}
+  
+void IO::CreatureListSkill(std::vector<std::string> skill_list, const int cd_list[4]) {
+  Divider();
+  std::cout <<  "  技能：" << std::endl;
+  Divider(); 
+  int n = skill_list.size();
+  int ith = 1;
+  for ( int i = 0; i < n; i+= 2 ) {
+    std::cout << "  | " << ith++ << " | 冷卻 ： " << cd_list[i / 2] << " 回合 | < " 
+              << skill_list[i] << " > : " << skill_list[i + 1] << std::endl;
+  }
+}
+
+void IO::EnemyPrintBattleInfo(CreatureInfo info) {
+  PrintDot(9);
+  std::cout << std::fixed << std::setprecision(1);
+  std::cout << info.name <<  "：" << std::endl;
+  Divider();
+  std::cout << "  血量    : " << info.hp << " / " << info.max_hp << std::endl;
+  std::cout << "  攻擊    : " << info.attack << std::endl;
+  std::cout << "  速度    : " << info.speed << std::endl;
+}
+
+void IO::BattleQuitCheck() {
+  PrintDot(9);
+  Divider();
+  std::cout << "確認脫離戰鬥？ ( Y / N ) " << std::endl;
+}
+void IO::BattleQuitHelp() {
+  PrintDot(9);
+  Divider();
+  std::cout << "HELP!" << std::endl;
+  Divider();
+  std::cout << "Y / Yes  | 確認脫離戰鬥" << std::endl;
+  std::cout << "N / No   | 回到戰鬥" << std::endl; 
+}
+void IO::BattleQuit() {
+  Divider();
+  std::cout << "已脫離戰鬥" << std::endl;
+}
+
+void IO::BattleQuitCancel() {
+  Divider();
+  std::cout << "已回到戰鬥" << std::endl;
 }

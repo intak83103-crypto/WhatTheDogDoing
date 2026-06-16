@@ -6,6 +6,7 @@
 #include "../include/User.h"
 #include "../include/Random.h"
 #include "../include/IO.h"
+#include "../include/skill.h"
 
 Battle::Battle(User& user, DogDoing& dogdoing, Enemy& enemy)
     : user(user), dogdoing(dogdoing), enemy(enemy) {
@@ -74,8 +75,7 @@ void Battle::Run() {
   bool dd_first = dogdoing.GetSpeed() >= enemy.GetSpeed();
 
 
-  while ( IsBattleOver() == false ) {
-    IO::Pause(1);
+  while ( IsBattleOver() == false && game_run == true) {
     IO::PrintBattleTurnStart(turn);
     IO::PrintDot(1);
     IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
@@ -84,16 +84,19 @@ void Battle::Run() {
 
     if ( dd_first ) {
       DDTurn();
-      if ( IsBattleOver() == false ) {
+      if ( IsBattleOver() == false && game_run == true) {
         IO::Pause(1);
         EnemyTurn();
       }
     } else {
       EnemyTurn();
-      if ( IsBattleOver() == false ) {
+      if ( IsBattleOver() == false && game_run == true ) {
         IO::Pause(1);
         DDTurn();
       }
+    }
+    if ( game_run == false ) {
+      break;
     }
     dogdoing.ReduceSkillCD();
     enemy.ReduceSkillCD();
@@ -103,37 +106,118 @@ void Battle::Run() {
   IO::PrintBattleEnd();
   dogdoing.ResetSkillCD();
   enemy.ResetSkillCD();
-  if ( dogdoing.GetHp() <= 0 ) {
+  if ( dogdoing.GetHp() <= 0 || game_run == false  ) {
+    dogdoing.SetHp(0);
     IO::PrintBattleLose();
   } else {
     IO::PrintBattleWin();
+    Win();
   }
 }
 
-void Battle::DDTurn() {
-  std::string op;
-  IO::PrintBattleRoundStart(dogdoing.GetName());
-  while ( true ) {
-    IO::GetToken(op);
-    if ( IsDigit(op) ) {
-      int select_id = std::stoi(op);
-      SkillID skill_id = dogdoing.GetIndexOfSkillList(select_id);
+void Battle::Win() {
+  dogdoing.AddExp(enemy.GetExpReward());
+  user.AddCoin(enemy.GetCoinReward());
+  IO::PrintUserGetCoin(user.GetUserName(), enemy.GetCoinReward());
+}
 
-      if ( skill_id == SkillID::None ) {
-        IO::PrintSkillSelectError();
-        continue;
-      } else {
-        if ( dogdoing.CanUseSkill(select_id) ) {
-          dogdoing.ReSetSkillCD(select_id);
-          SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id, dogdoing.GetATK());
-          SkillEffectApply(false, skill_info);
-          return;
+
+
+enum class BattleOperate{
+  Battle, Unknown, Help, Info, Quit, Attack, ListSkill, EnemyInfo, QuitCheck,
+  QuitCancel, QuitConfirm, QuitHelp
+};
+
+std::string Battle::ToLower(std::string str) {
+  for ( char& c : str ) {
+    c = tolower(c);
+  }
+  return str;
+}
+
+
+BattleOperate  Battle::GetOp(std::string op) {
+  op = ToLower(op);
+  if ( control == BattleControl::Battle ) {
+    if ( IsDigit(op) ) {
+      select_skill = std::stoi(op);
+      return BattleOperate::Attack;
+    } 
+    if ( op == "h" || op ==  "help" ) {
+      return BattleOperate::Help;
+    }
+    if ( op == "i" || op == "info" ) {
+      return BattleOperate::Info;
+    }
+    if ( op == "l" || op == "list" ) {
+      return BattleOperate::ListSkill;
+    }
+    if ( op == "q" || op == "quit" ) {
+      return BattleOperate::Quit;
+    }
+    if ( op == "e" || op == "enemy" ) {
+      return BattleOperate::EnemyInfo;
+    }
+  } else if ( control == BattleControl::Quit ) {
+    if ( op == "h" || op == "help" ) {
+      return BattleOperate::QuitHelp;
+    } else if ( op == "y" || op == "yes" ) {
+      return BattleOperate::QuitConfirm;
+    } else if ( op == "n" || op == "no" ) {
+      return BattleOperate::QuitCancel;
+    }
+  }
+  return BattleOperate::Unknown;
+}
+void Battle::DDTurn() {
+  std::string str;
+  IO::PrintBattleRoundStart(dogdoing.GetName());
+  while ( game_run != false ) {
+    IO::PrintOperateWating();
+    IO::GetToken(str);
+    BattleOperate op = GetOp(str);
+    if ( control == BattleControl::Battle ) {
+      if ( op == BattleOperate::Attack ) {
+        SkillID skill_id = dogdoing.GetIndexOfSkillList(select_skill);
+
+        if ( skill_id == SkillID::None ) {
+          IO::PrintSkillSelectError();
+          continue;
         } else {
-          IO::PrintSkillUnready();
+          if ( dogdoing.CanUseSkill(select_skill) ) {
+            dogdoing.ReSetSkillCD(select_skill);
+            select_skill = -1;
+            SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id, dogdoing.GetATK());
+            SkillEffectApply(false, skill_info);
+            return;
+          } else {
+            IO::PrintSkillUnready();
+          }
         }
+      } else if ( op == BattleOperate::Help ) {
+        IO::PrintBattleHelp();
+      } else if ( op == BattleOperate::ListSkill ) {
+        dogdoing.ListSkill();
+      } else if ( op == BattleOperate::Info ) {
+        dogdoing.PrintBattleInfo();
+      } else if ( op == BattleOperate::Quit ) {
+        IO::BattleQuitCheck();
+        control = BattleControl::Quit;
+      } else if ( op == BattleOperate::EnemyInfo ) {
+        enemy.PrintBattleInfo();
+      } else if ( op == BattleOperate::Unknown ) {
+        IO::PrintInputError(str);
       }
-    } else {
-      IO::PrintInputError(op);
+    } else if ( control == BattleControl::Quit ) {
+      if ( op == BattleOperate::QuitCancel ) {
+        IO::BattleQuitCancel();
+        control = BattleControl::Battle;
+      } else if ( op == BattleOperate::QuitConfirm ) {
+        IO::BattleQuit();
+        game_run = false;
+      } else if ( op == BattleOperate::QuitHelp ) {
+        IO::BattleQuitHelp();
+      }
     }
     
   }
@@ -147,7 +231,7 @@ void Battle::EnemyTurn() {
   if ( enemy.GetNumOfSkill() > 1 ) {
     use_skill = Random::RandomInt(2, enemy.GetNumOfSkill());
     int try_count = 0;
-    while ( EnemyShouldUseSkill(use_skill) == false && try_count < 10 ) {
+    while ( EnemyShouldUseSkill(use_skill) == false && try_count < 20 ) {
       use_skill = Random::RandomInt(2, enemy.GetNumOfSkill());
       try_count++;
     }
@@ -186,6 +270,7 @@ bool Battle::EnemyShouldUseSkill(int index) {
   return true;
 }
 
+
 bool Battle::IsBattleOver() const {
   return dogdoing.GetHp() <= 0 || enemy.GetHp() <= 0;
 }
@@ -194,53 +279,64 @@ bool Battle::IsBattleOver() const {
 void Battle::SkillEffectApply(bool is_enemy, SkillInfo skill_info) {
   int n = skill_info.skill_detail.size();
   IO::Pause(1);
-  if ( is_enemy ) {
-    IO::PrintUseSkill(enemy.GetName(), skill_info.skill_name);
-  } else {
-    IO::PrintUseSkill(dogdoing.GetName(), skill_info.skill_name);
-  }
+  bool hit = true;
+  int last_attack_damage = 0;
+  SkillResult result;
+  result.skill_name = skill_info.skill_name;
 
   for ( int i = 0; i < n; i++ ) {
     SkillDetail skill_detail = skill_info.skill_detail[i];
     int value = skill_detail.value;
     SkillEffect effect = skill_detail.effect;
-
+    if ( hit == false && skill_detail.control == SkillControl::AttackHit ) {  // 處理需要命中才生效的技能
+      continue;
+    }
     IO::Pause(1);
     if ( effect == SkillEffect::Attack ) {
       if ( IsHit(is_enemy) ) {
+        hit = true;
+        bool is_crit = false;
         value = CalculateDamage(value, is_enemy);
         if ( IsCrit(is_enemy) ) {
           value = value * 150 / 100;
-          IO::PrintBattleCrit();
+          is_crit = true;
         }
+        last_attack_damage = value;
         if ( is_enemy ) {
           dogdoing.MinusHp(value);
-          IO::PrintBattleDamage(enemy.GetName(), dogdoing.GetName(), value);
-          IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
         } else {
           enemy.MinusHp(value);
-          IO::PrintBattleDamage(dogdoing.GetName(), enemy.GetName(), value);
-          IO::PrintBattleHpInfo(enemy.GetCreatureInfo());
         }
+        result.details.push_back({effect, value, true, is_crit});
       } else {
-        IO::PrintBattleDoesNotHit();
+        hit = false;
+        last_attack_damage = 0;
+        result.details.push_back({effect, 0, false});
       }
     } else if ( effect == SkillEffect::Heal ) {
+      if ( skill_detail.control == SkillControl::AttackHit ) {
+        value = last_attack_damage;
+      }
       if ( is_enemy ) {
         enemy.Heal(value);
-        IO::PrintBattleHeal(enemy.GetName(), value);
-        IO::PrintBattleHpInfo(enemy.GetCreatureInfo());
       } else {
         dogdoing.Heal(value);
-        IO::PrintBattleHeal(dogdoing.GetName(), value);
-        IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
       }
+      result.details.push_back({effect, value, true});
     } else if ( effect == SkillEffect::Defend ) {
 
     } else if ( effect == SkillEffect::Buff ) {
 
     }
   }
+
+  if ( is_enemy ) {
+    IO::PrintSkillResult(enemy.GetName(), dogdoing.GetName(), result);
+  } else {
+    IO::PrintSkillResult(dogdoing.GetName(), enemy.GetName(), result);
+  }
+  IO::PrintBattleHpInfo(dogdoing.GetCreatureInfo());
+  IO::PrintBattleHpInfo(enemy.GetCreatureInfo());
 }
 
 bool Battle::IsDigit(std::string str)  {

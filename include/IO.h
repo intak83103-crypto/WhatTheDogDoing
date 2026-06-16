@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "DisplayData.h"
+#include "skill.h"
 
 class IO {
 public:
@@ -83,11 +84,24 @@ public:
   static void PrintDots();
   static void PrintSkillUnready();
   static void PrintBattleHeal(std::string attacker, int heal);
+  static void PrintSkillResult(std::string attacker,
+                               std::string target,
+                               SkillResult result);
   static void PrintBattleHpInfo(CreatureInfo info);
   static void PrintBattleTestMenu(int selected);
   static void PrintBattleTestHelp();
   static void PrintBattleTestSelect(int selected);
   static void PrintBattleTestError();
+  static void PrintGetExp(std::string name, int exp);
+  static void PrintDDLevelUp(std::string name);
+  static void PrintUserGetCoin(std::string name, int coin);
+  static void PrintBattleHelp();
+  static void CreatureListSkill(std::vector<std::string> skill_list, const int cd_list[4]);
+  static void EnemyPrintBattleInfo(CreatureInfo info);
+  static void BattleQuitCheck();
+  static void BattleQuitHelp();
+  static void BattleQuit();
+  static void BattleQuitCancel();
 };
 
 #endif

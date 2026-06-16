@@ -10,8 +10,16 @@ void ProductDD::Apply(User& user) const {
   user.AddDD();
 }
 
-ProductHealPotion::ProductHealPotion() : Product("治療藥水", 20) {}
 
-void ProductHealPotion::Apply(User& user) const {
-  user.GetItem(ItemType::HealPotion);
+ProductSmallHealPotion::ProductSmallHealPotion() : Product("小治療藥水", 20) {}
+
+void ProductSmallHealPotion::Apply(User& user) const {
+  user.GetItem(ItemType::SmallHealPotion);
+}
+
+
+ProductSmallExpPotion::ProductSmallExpPotion() : Product("小經驗藥水", 200) {}
+
+void ProductSmallExpPotion::Apply(User& user) const {
+  user.GetItem(ItemType::SmallExpPotion);
 }

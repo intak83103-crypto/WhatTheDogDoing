@@ -1,5 +1,5 @@
 #include "../include/Enemy.h"
-
+#include "../include/IO.h"
 
 int Enemy::GetExpReward() const {
   return exp_reward;
@@ -19,6 +19,10 @@ void Enemy::SetCoinReward(int coin_reward) {
   this->coin_reward = coin_reward;
 }
 
+void Enemy::PrintBattleInfo() const {
+  IO::EnemyPrintBattleInfo(GetCreatureInfo());
+  ListSkill();
+}
 
 Slime::Slime() {
   SetName("史萊姆");
@@ -26,7 +30,7 @@ Slime::Slime() {
   SetMaxHp(40);
   SetATK(6);
   SetSpeed(3);
-  SetExpReward(10);
+  SetExpReward(12);
   SetCoinReward(5);
   SetNumOfSkill(1);
   AddSkill(SkillID::Heal);
@@ -64,15 +68,29 @@ DarkSlime::DarkSlime() : Slime(){
 
 Goblin::Goblin() {
   SetName("哥布林");
-  SetHp(60);
-  SetMaxHp(60);
-  SetATK(12);
+  SetHp(72);
+  SetMaxHp(72);
+  SetATK(11);
   SetSpeed(8);
-  SetExpReward(10);
-  SetCoinReward(5);
+  SetExpReward(25);
+  SetCoinReward(10);
   SetNumOfSkill(1);
   SetElement(Element::None);
   AddSkill(SkillID::Goblin_Bash);
-  AddSkill(SkillID::Goblin_SneakAttack);
   AddSkill(SkillID::Goblin_Stab);
+  AddSkill(SkillID::Goblin_SneakAttack);
+}
+
+Vampire::Vampire() {
+  SetName("吸血鬼");
+  SetHp(100);
+  SetMaxHp(100);
+  SetSpeed(15);
+  SetATK(16);
+  SetExpReward(50);
+  SetCoinReward(20);
+  SetNumOfSkill(1);
+  SetElement(Element::Dark);
+  AddSkill(SkillID::Vampire_Claw);
+  AddSkill(SkillID::Vampire_Drain);
 }

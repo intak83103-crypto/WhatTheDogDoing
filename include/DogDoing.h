@@ -14,6 +14,7 @@ private:
     int need_exp;
     int max_hp;
     int attack;
+    int spped;
   };
   static const std::vector<LevelData> level_table;
 
@@ -37,6 +38,7 @@ public:
   void RanDomElement();
   DDtitleInfo TitlePackage() const;
   DDInfo InfoPackage() const;
+  void PrintBattleInfo() const override;
   
 };
 

@@ -9,11 +9,19 @@ class Creature;
 #include "skill.h"
 #include "Enemy.h"
 
+enum class BattleControl{
+  Battle, Unknown, Quit
+};
+  
+enum class BattleOperate;
+
 class Battle{
 private:
   User& user;
   DogDoing& dogdoing;
   Enemy& enemy;
+  BattleControl control = BattleControl::Battle;
+  bool game_run = true;
   int turn = 1;
   int dd_over_hit = 0;
   int enemy_over_hit = 0;
@@ -24,6 +32,7 @@ private:
   int defend_of_dd = 0;
   int defend_of_enemy;
   int is_advantage = 0;  //屬性是否克制： 0：無  1 : 克制  2 : 被克制
+  int select_skill = -1;
   
 public:
   Battle(User& user, DogDoing& dogdoing, Enemy& enemy); 
@@ -42,6 +51,9 @@ public:
   void SetTempAtk(bool is_enemy);
   void SetElementBonus();
   bool EnemyShouldUseSkill(int index);
+  void Win();
+  std::string ToLower(std::string str);
+  BattleOperate GetOp(std::string);
 };
 
 

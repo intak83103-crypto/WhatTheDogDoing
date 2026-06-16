@@ -7,7 +7,7 @@
 class User;
 
 enum class ItemType {
-  HealPotion, None
+  SmallHealPotion, SmallExpPotion, None
 };
 enum class ItemTargetType {
   DogDoing, None

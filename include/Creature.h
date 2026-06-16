@@ -67,6 +67,8 @@ public:
   void ReduceSkillCD();
   void ReSetSkillCD(int index);
   void ResetSkillCD();
+  void ListSkill() const;
+  virtual void PrintBattleInfo() const = 0 ;
 };
 
 

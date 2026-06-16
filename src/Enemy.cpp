@@ -77,7 +77,7 @@ Goblin::Goblin() {
   AddSkill(SkillID::NormalAttack);
   SetElement(Element::None);
   AddSkill(SkillID::Goblin_Bash);
-  AddSkill(SkillID::Goblin_Stab);
+  AddSkill(SkillID::Goblin_warCry);
   AddSkill(SkillID::Goblin_SneakAttack);
 }
 

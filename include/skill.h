@@ -11,7 +11,7 @@ enum class SkillEffect {    // 技能效果
 enum class SkillID {        //   角色存取的都是ID，用的時候才會用ID查功能
   None, NormalAttack, Heal, 
   Slime_Attack, 
-  Goblin_Stab, Goblin_SneakAttack, Goblin_Bash,
+  Goblin_warCry, Goblin_SneakAttack, Goblin_Bash,
   Vampire_Normal, Vampire_Drain, Vampire_BloodLust, Vampire_Blood_Mist
 };
 
@@ -22,6 +22,11 @@ enum class SkillControl{    // 技能分成需要命中或是直接生效（為�
 enum class BattleBuffType{
   NoBuff, AddAttack, AddHp, AddMaxHp, AddDamageIncrease, AddHitRate, AddDodgeRate, AddCritRate, AddSpeed,
   AddDefend, AddMaxHpPercent
+};
+
+enum class BuffTarget {
+  Self,
+  Opponent
 };
 
 enum class SkillValueType {     //不只有用攻擊力出傷得角色
@@ -35,6 +40,7 @@ enum class SkillValueType {     //不只有用攻擊力出傷得角色
 
 struct BuffInfo {                 // buff詳情
   BattleBuffType buff_type;  
+  BuffTarget target;
   std::string buff_name;     
   int round;                       //持續時間
   int value;

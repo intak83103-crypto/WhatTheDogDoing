@@ -8,7 +8,7 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       SkillEffect::None,
       0,
       {{SkillEffect::None, 0, SkillControl::None}},
-      {{BattleBuffType::NoBuff, "", 0, 0}}
+      {{BattleBuffType::NoBuff, BuffTarget::Self, "", 0, 0}}
     };
   } else if ( id == SkillID::NormalAttack ) {
     return{
@@ -17,7 +17,7 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       SkillEffect::Attack,
       0,
       {{SkillEffect::Attack, 100, SkillControl::Always, SkillValueType::AtkPercent}},
-      {{BattleBuffType::NoBuff, "", 0, 0}}
+      {{BattleBuffType::NoBuff, BuffTarget::Self, "", 0, 0}}
     };
   } else if ( id == SkillID::Heal ) {
     return{
@@ -26,7 +26,7 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       SkillEffect::Heal,
       2,
       {{SkillEffect::Heal, 80, SkillControl::Always, SkillValueType::AtkPercent}},
-      {{BattleBuffType::NoBuff, "", 0, 0}}
+      {{BattleBuffType::NoBuff, BuffTarget::Self, "", 0, 0}}
     };
   } else if ( id == SkillID::Slime_Attack ) {
     return {
@@ -35,7 +35,7 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       SkillEffect::Attack,
       3,
       {{SkillEffect::Attack, 150, SkillControl::Always, SkillValueType::AtkPercent}},
-      {{BattleBuffType::NoBuff, "", 0, 0}}
+      {{BattleBuffType::NoBuff, BuffTarget::Self, "", 0, 0}}
     };
   } else if ( id == SkillID::Goblin_Bash ) {
     return {
@@ -44,16 +44,16 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       SkillEffect::Attack,
       2,
       {{SkillEffect::Attack, 120, SkillControl::Always, SkillValueType::AtkPercent}},
-      {{BattleBuffType::NoBuff, "", 0, 0}}
+      {{BattleBuffType::NoBuff, BuffTarget::Self, "", 0, 0}}
     };
-  } else if ( id == SkillID::Goblin_Stab ) {
+  } else if ( id == SkillID::Goblin_warCry ) {
     return {
-      "刺擊",
-      "造成攻擊力 150% 的傷害",
-      SkillEffect::Attack,
+      "戰吼",
+      "持續三回合：提升基礎攻擊力 30% 的攻擊力",
+      SkillEffect::Buff,
       3,
-      {{SkillEffect::Attack, 150, SkillControl::Always, SkillValueType::AtkPercent}},
-      {{BattleBuffType::NoBuff, "", 0, 0}}
+      {{SkillEffect::Buff, 0, SkillControl::Always, SkillValueType::Fixed}},
+      {{BattleBuffType::AddAttack, BuffTarget::Self, "提升基礎攻擊力 30% 的攻擊力", 3, 30}}
     };
   } else if ( id == SkillID::Goblin_SneakAttack ) {
     return {
@@ -62,7 +62,7 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       SkillEffect::Attack,
       5,
       {{SkillEffect::Attack, 220, SkillControl::Always, SkillValueType::AtkPercent}},
-      {{BattleBuffType::NoBuff, "", 0, 0}}
+      {{BattleBuffType::NoBuff, BuffTarget::Self, "", 0, 0}}
     };
   } else if ( id == SkillID::Vampire_Drain ) {
     return {
@@ -72,17 +72,17 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       3,
       {{SkillEffect::Attack, 30, SkillControl::Always, SkillValueType::MaxHpPercent},
        {SkillEffect::Heal, 70, SkillControl::AttackHit, SkillValueType::Damage}},
-      {{BattleBuffType::NoBuff, "", 0, 0}}
+      {{BattleBuffType::NoBuff, BuffTarget::Self, "", 0, 0}}
     };
   } else if ( id == SkillID::Vampire_BloodLust ) {
     return {
       "貪婪",
-      "獲得Buff : 嗜血",
+      "持續三回合 : 嗜血",
       SkillEffect::Buff,
       5,
       {{SkillEffect::Buff, 0, SkillControl::Always, SkillValueType::Fixed}},
-      {{BattleBuffType::AddMaxHpPercent, "嗜血：提升 50% 最大生命值，並獲得 30% 易傷", 3, 50},
-       {BattleBuffType::AddDefend, "", 3, -30}}
+      {{BattleBuffType::AddMaxHpPercent, BuffTarget::Self, "嗜血：提升 50% 最大生命值，並獲得 30% 易傷", 3, 50},
+       {BattleBuffType::AddDefend, BuffTarget::Self, "", 3, -30}}
     };
   } else if ( id == SkillID::Vampire_Normal ) {
     return {
@@ -92,7 +92,7 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       0,
       {{SkillEffect::Attack, 20, SkillControl::Always, SkillValueType::MaxHpPercent},
        {SkillEffect::Heal, 50, SkillControl::AttackHit, SkillValueType::Damage}},
-      {{BattleBuffType::NoBuff, "", 0, 0}}
+      {{BattleBuffType::NoBuff, BuffTarget::Self, "", 0, 0}}
     };
   } else if ( id == SkillID::Vampire_Blood_Mist ) {
     return{
@@ -101,7 +101,7 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       SkillEffect::Attack,
       5,
       {{SkillEffect::Attack, 35, SkillControl::Always, SkillValueType::MaxHpPercent}},
-      {{BattleBuffType::NoBuff, "", 0, 0}}      
+      {{BattleBuffType::NoBuff, BuffTarget::Self, "", 0, 0}}      
     };
   }
   return{
@@ -110,7 +110,7 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       SkillEffect::None,
       0,
       {{SkillEffect::None , 0, SkillControl::None}},
-      {{BattleBuffType::NoBuff, "", 0, 0}}
+      {{BattleBuffType::NoBuff, BuffTarget::Self, "", 0, 0}}
 
   };
 }

@@ -273,6 +273,7 @@ BattleOperate  Battle::GetOp(std::string op) {
   return BattleOperate::Unknown;
 }
 void Battle::DDTurn(bool bonus_turn) {
+  IO::Pause(1);
   std::string str;
   IO::PrintBattleRoundStart(dogdoing.GetName());
   while ( game_run != false ) {
@@ -365,7 +366,6 @@ void Battle::EnemyTurn(bool bonus_turn) {
   SkillInfo skill_info = SkillDataBase::GetSkillInfo(skill_id);
   enemy.ReSetSkillCD(use_skill);
   SkillEffectApply(true, skill_info);
-  IO::Pause(1);
   if ( bonus_turn == false ) {
     enemy.ReduceSkillCD();
     ReduceBuffRound(true);
@@ -692,23 +692,27 @@ void Battle::SkillEffectApply(bool is_enemy, SkillInfo skill_info) {
     } else if ( effect == SkillEffect::Defend ) {
 
     } else if ( effect == SkillEffect::Buff ) {
-      ApplyBuff(is_enemy, skill_info.buff_info);
       int buff_count = skill_info.buff_info.size();
       for ( int j = 0; j < buff_count; j++ ) {
         BuffInfo buff_info = skill_info.buff_info[j];
         if ( buff_info.buff_type == BattleBuffType::NoBuff ) {
           continue;
         }
-        if ( buff_info.buff_name == "" ) {
-          continue;
+        if ( buff_info.target == BuffTarget::Self ) {
+          ApplyBuff(is_enemy, {buff_info});
+        } else if ( buff_info.target == BuffTarget::Opponent ) {
+          ApplyBuff(!is_enemy, {buff_info});
         }
-        result.details.push_back({
-          effect,
-          0,
-          true,
-          false,
-          buff_info.buff_name
-        });
+
+        if ( buff_info.buff_name != "" ) {
+          result.details.push_back({
+            effect,
+            0,
+            true,
+            false,
+            buff_info.buff_name
+          });
+        }
       }
     }
   }

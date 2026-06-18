@@ -41,17 +41,17 @@ bool Editor::IsDigit(std::string str) {
 }
 
 // 依照目前所在介面，把玩家輸入轉換成對應操作。
-// 這裡只負責「判斷指令」，真正執行會交給 OperateXXX 函式。
+// 這裡只負責判斷指令，真正執行會交給 OperateXXX 函式。
 Operate Editor::GetOp(std::string op) {
   op = ToLower(op);
-  if ( op == "q" || op == "quit" ) {
-    return Operate::Quit;
-  }
   if ( control == Control::DogDoing ) {
     // 刀盾主介面：查看刀盾、背包、商店、探索、裝備技能都從這裡進入。
     if ( op == "help" || op == "h" ) {
       return Operate::HelpDD;
     } 
+    if ( op == "q" || op == "quit" ) {
+      return Operate::Quit;
+    }
     if ( op == "l" || op == "list" ) {
       return Operate::ListDD;
     } 
@@ -475,15 +475,11 @@ void Editor::BattleTest() {
     IO::PrintOperateWating();
     if ( IO::GetToken(op) == false ) {
       IO::PrintCinError();
-      game_running = false;
-      return;
+      continue;
     }
 
     op = ToLower(op);
-    if ( op == "q" || op == "quit" ) {
-      game_running = false;
-      return;
-    } else if ( op == "start" ) {
+    if ( op == "start" ) {
       // 使用目前選中的怪物開始戰鬥。
       StartBattleTest(selected_enemy);
       return;
@@ -579,18 +575,13 @@ void Editor::Run() {
   IO::PrintHelpHint();
   std::string str;
   Operate op = Operate::None;
-  while ( game_running ) {     
+  while ( op != Operate::Quit ) {     
     IO::PrintOperateWating();
     if ( !IO::GetToken(str) ) {
       IO::PrintCinError();
-      game_running = false;
-      break;
+      continue;
     }
     op = GetOp(str);
-    if ( op == Operate::Quit ) {
-      game_running = false;
-      break;
-    }
     if ( control == Control::DogDoing ) {
       OperateDogDoing(op, str);
     } else if ( control == Control::Shop ) {

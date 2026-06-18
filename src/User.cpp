@@ -7,6 +7,7 @@
 
 User::User() {}
 
+// 建立新玩家：給第一隻刀盾、初始金錢和初始技能庫。
 User::User(std::string name, int id) {
   this->name = name;
   this->id = id;
@@ -91,6 +92,7 @@ bool User::LearnSkill(SkillID skill) {
   return true;
 }
 
+// 技能罐會從技能資料庫的稀有度池抽技能，抽到已學技能會重抽。
 SkillID User::LearnRandomSkillFromJar() {
   for ( int i = 0; i < 20; i++ ) {
     SkillID skill = SkillDataBase::GetRandomJarSkill();
@@ -103,6 +105,7 @@ SkillID User::LearnRandomSkillFromJar() {
   return SkillID::None;
 }
 
+// 怪物掉落只會從該怪物自己擁有、玩家尚未學會的非普攻技能中抽取。
 SkillID User::TryDropSkill(const std::vector<SkillID>& enemy_skills) {
   if ( Random::RandomChance(35) == false ) {
     IO::PrintNoSkillDrop();
@@ -132,6 +135,7 @@ SkillID User::TryDropSkill(const std::vector<SkillID>& enemy_skills) {
 }
 
 bool User::IsSkillEquipped(SkillID skill, int except_dd) const {
+  // 普攻每隻刀盾都可以有，不受「同技能只能裝一隻」限制。
   if ( skill == SkillID::NormalAttack ) {
     return false;
   }
@@ -148,6 +152,7 @@ bool User::IsSkillEquipped(SkillID skill, int except_dd) const {
   return false;
 }
 
+// 將技能庫中的技能裝到目前刀盾指定格，並檢查裝備規則。
 bool User::EquipSkillToCurrentDD(int slot, int skill_index) {
   int real_skill_index = skill_index - 1;
   if ( real_skill_index < 0 ||
@@ -158,14 +163,17 @@ bool User::EquipSkillToCurrentDD(int slot, int skill_index) {
 
   SkillID skill = skill_list[real_skill_index];
   if ( slot == 1 && skill != SkillID::NormalAttack ) {
+    // 第 1 格保留給普通攻擊。
     IO::PrintNormalAttackError();
     return false;
   }
   if ( slot != 1 && skill == SkillID::NormalAttack ) {
+    // 普通攻擊不能裝到第 2~4 格。
     IO::PrintNormalAttackError();
     return false;
   }
   if ( IsSkillEquipped(skill, curr_dd) ) {
+    // 除了普攻，同一技能只能被一隻刀盾裝備。
     IO::PrintSkillAlreadyEquipped();
     return false;
   }
@@ -180,6 +188,7 @@ void User::ListSkillLibrary() const {
   IO::ListSkillLibrary(name, skill_list);
 }
 
+// 教師測試用：直接把技能資料庫中所有可學技能加入技能庫。
 void User::GrantAllSkills() {
   std::vector<SkillID> all_skills = SkillDataBase::GetAllLearnableSkills();
   for ( SkillID skill : all_skills ) {
@@ -187,6 +196,7 @@ void User::GrantAllSkills() {
   }
 }
 
+// 教師測試用：建立六隻固定屬性的刀盾，方便測屬性克制。
 void User::GrantAllElementDogDoings() {
   dogdoings.emplace_back(DogDoing("FireDogDoing", Element::Fire));
   dogdoings.emplace_back(DogDoing("WaterDogDoing", Element::Water));
@@ -211,6 +221,7 @@ void User::SwitchDD(int index) {
 }
 
 void User::GetItem(ItemType type) {
+  // 背包道具可堆疊，已有同類道具時只增加數量。
   int n = backpack.size();
   for ( int i = 0; i < n; i ++ ) {
     if ( backpack[i].type == type ) {
@@ -232,6 +243,7 @@ void User::ListBackpack(bool divider) {
 }
 
 void User::UseItem(int index, int target_dd) {
+  // index 是玩家看到的 1-based 編號，先轉成 vector 的 0-based。
   int real_index = index - 1;
   if ( real_index < 0 ||
        static_cast<std::size_t>(real_index) >= backpack.size()  ) {
@@ -245,6 +257,7 @@ void User::UseItem(int index, int target_dd) {
   if ( target_dd != -1 && DogDoingIndexCheck(target_dd - 1) == false ) {
     return;
   }
+  // 真正的道具效果交給 ItemDatabase，User 只處理背包扣數量。
   ItemDatabase::UseItem(*this, backpack[real_index].type, target_dd);
 
   backpack[real_index].count -= 1;

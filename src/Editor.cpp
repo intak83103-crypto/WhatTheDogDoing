@@ -23,6 +23,7 @@ void Editor::Start() {
   IO::EditorStart();
 }
 
+// 將玩家輸入統一轉成小寫，讓 Help / help / HELP 都能吃到。
 std::string Editor::ToLower(std::string str ) {
   for ( char& c : str ) {
     c = tolower(c);
@@ -30,6 +31,7 @@ std::string Editor::ToLower(std::string str ) {
   return str;
 }
 
+// 判斷輸入是否是純數字，數字在不同介面會代表不同選項。
 bool Editor::IsDigit(std::string str) {
   for (char& c : str ) {
     if ( !isdigit(c) )
@@ -38,15 +40,18 @@ bool Editor::IsDigit(std::string str) {
   return true;
 }
 
-Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
+// 依照目前所在介面，把玩家輸入轉換成對應操作。
+// 這裡只負責「判斷指令」，真正執行會交給 OperateXXX 函式。
+Operate Editor::GetOp(std::string op) {
   op = ToLower(op);
-  if ( control == Control::DogDoing ) {     // 介面：刀盾
+  if ( op == "q" || op == "quit" ) {
+    return Operate::Quit;
+  }
+  if ( control == Control::DogDoing ) {
+    // 刀盾主介面：查看刀盾、背包、商店、探索、裝備技能都從這裡進入。
     if ( op == "help" || op == "h" ) {
       return Operate::HelpDD;
     } 
-    if ( op == "q" || op == "quit" ) {
-      return Operate::Quit;
-    }
     if ( op == "l" || op == "list" ) {
       return Operate::ListDD;
     } 
@@ -86,7 +91,8 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
       return Operate::EquipSkill;
     }
 
-  } else if ( control == Control::User ) {    // 介面：使用者
+  } else if ( control == Control::User ) {
+    // 使用者介面：新增、刪除、切換、重新命名玩家。
     if ( op == "help" || op == "h" ) {
       return Operate::HelpUser;
     }
@@ -112,7 +118,8 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
 
     
 
-  } else if ( control == Control::Shop ) {    // 介面：商店
+  } else if ( control == Control::Shop ) {
+    // 商店介面：數字代表商品編號，買之前會先進入確認頁。
     if ( op == "help" || op == "h" ) {
       return Operate::HelpShop;
     } 
@@ -128,7 +135,8 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
     } 
 
 
-  } else if ( control == Control::Buy ) {    // 介面：購買
+  } else if ( control == Control::Buy ) {
+    // 購買確認介面：只處理確認、取消、說明。
     if ( op == "y" || op == "yes" ) {
       return Operate::ConfirmBuy;
     }
@@ -139,7 +147,8 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
       return Operate::CancelBuy;
 
     }
-  } else if ( control == Control::DelUser ) {   // 介面：刪除使用者
+  } else if ( control == Control::DelUser ) {
+    // 刪除使用者確認介面：避免輸入 del 後立刻刪掉。
     if ( op == "h" || op == "help" ) {
       return Operate::HelpDelUser;
     } 
@@ -149,7 +158,8 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
     if ( op == "n" || op == "no" ) {
       return Operate::CanCelDelUser;
     }
-  } else if ( control == Control::Backpack ) {  // 介面：背包
+  } else if ( control == Control::Backpack ) {
+    // 背包介面：數字代表使用道具，技能庫只查看不放進背包。
     if ( op == "h" || op == "help" ) {
       return Operate::HelpBackpack;
     }
@@ -166,7 +176,8 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
       use_item_of_bp = std::stoi(op);
       return Operate::UseItem;
     }
-  } else if ( control == Control::SelectTargetDD ) {     // 介面：使用需要選擇刀盾的物品
+  } else if ( control == Control::SelectTargetDD ) {
+    // 道具需要指定刀盾時，數字代表目標刀盾。
     if ( op == "h" || op == "help" ) {
       return Operate::HelpSelectTargetDD;
     } else if ( IsDigit(op) ) {
@@ -176,6 +187,7 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
       return Operate::BacktoBackpack;
     }
   } else if ( control == Control::EquipSkill ) {
+    // 裝備技能介面：數字代表技能庫裡的技能編號。
     if ( op == "b" || op == "back" ) {
       return Operate::BacktoDD;
     }
@@ -190,6 +202,7 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
   return Operate::Unknown;
 }
 
+// 執行刀盾主介面的操作，是整個遊戲流程的主要入口。
 void Editor::OperateDogDoing(Operate op, std::string str) {
   User& user = users[curr_user];
   if ( op == Operate::Quit ) {
@@ -203,6 +216,7 @@ void Editor::OperateDogDoing(Operate op, std::string str) {
   } else if ( op == Operate::ListDD ) {
     user.ListAllDD();
   } else if ( op == Operate::RenameDD ) {
+    // 重新命名會額外讀一次輸入，直到成功讀到新名字。
     IO::PrintRenameInfo(user.GetCurrentDD().GetName());
     std::string name;
     while ( IO::GetToken(name) == false ) {
@@ -216,10 +230,12 @@ void Editor::OperateDogDoing(Operate op, std::string str) {
     user.SwitchDD(switch_dd_index);
     switch_dd_index = -1;
   } else if ( op == Operate::Shop ) {
+    // 切到商店介面，並立刻列出商品。
     control = Control::Shop;
     IO::PrintShop();
     shop.ListProduct(user.GetCoin());
   } else if ( op == Operate::User ) {
+    // 切到使用者管理介面，顯示目前所有使用者。
     control = Control::User;
     IO::PrintUser();
     std::vector<std::string> users_name;
@@ -228,19 +244,22 @@ void Editor::OperateDogDoing(Operate op, std::string str) {
     }
     IO::ListAllUser(users_name, curr_user);
   } else if ( op == Operate::Backpack ) {
+    // 切到背包介面，背包裡只放道具，技能庫另外顯示。
     control = Control::Backpack;
     IO::PrintSwitchBackpack();
     user.ListBackpack(false);
   } else if ( op == Operate::Explore ) {
+    // 探索會進入怪物選單，選完怪物後才開始戰鬥。
     BattleTest();
   } else if ( op == Operate::SkillLibrary ) {
     user.ListSkillLibrary();
-    user.GetCurrentDD().ListSkill();
   } else if ( op == Operate::EquipSkill ) {
+    // eq1~eq4 先記住要換哪一格，再進入技能選擇介面。
     control = Control::EquipSkill;
     IO::PrintEquipSkillPrompt(equip_skill_slot);
     user.ListSkillLibrary();
   } else if ( op == Operate::Op ) {
+    // 教師快速測試：直接給錢、所有技能和全屬性刀盾。
     user.AddCoin(10000);
     user.GrantAllSkills();
     user.GrantAllElementDogDoings();
@@ -254,6 +273,7 @@ void Editor::OperateDogDoing(Operate op, std::string str) {
   }
 }
 
+// 執行商店介面的操作，買商品前會先切到購買確認狀態。
 void Editor::OperateShop(Operate op, std::string str) {
   User& user = users[curr_user];
   int coin = user.GetCoin();
@@ -270,6 +290,7 @@ void Editor::OperateShop(Operate op, std::string str) {
     IO::PrintDot(9);
     shop.ListProduct(coin);
   } else if ( op == Operate::Buy ) {
+    // 數字是商品編號；合法才顯示確認購買。
     int product = std::stoi(str);
     if ( ConfirmIndex(product) == false ) {
       IO::PrintBuyError();
@@ -280,6 +301,7 @@ void Editor::OperateShop(Operate op, std::string str) {
   }
 }
 
+// 確認商品編號是否存在。
 bool Editor::ConfirmIndex(int index) {
   if ( index <= 0 || index > shop.GetNumOfProduct() ) {
     return false;
@@ -287,6 +309,7 @@ bool Editor::ConfirmIndex(int index) {
   return true;
 }
 
+// 購買確認頁：按 yes 才真的扣錢並套用商品效果。
 void Editor::OperateBuy(Operate op, std::string str ) {
   User& user = users[curr_user];
   if ( op == Operate::HelpBuy) {
@@ -306,6 +329,7 @@ void Editor::OperateBuy(Operate op, std::string str ) {
   }
 }
 
+// 使用者管理介面：管理玩家資料，不處理刀盾或戰鬥。
 void Editor::OperateUser(Operate op, std::string str) {
   User& user = users[curr_user];
   if ( op == Operate::HelpUser ) {
@@ -327,6 +351,7 @@ void Editor::OperateUser(Operate op, std::string str) {
     IO::PrintConfirmDelUser(str);
     control = Control::DelUser;
   } else if ( op == Operate::SwitchUser ) {
+    // 切換使用者前先檢查編號，避免 vector 越界。
     if ( switch_user_index - 1 < 0 ||
          static_cast<std::size_t>(switch_user_index - 1) >= users.size() ) {
       IO::PrintSwitchUserError();
@@ -340,6 +365,7 @@ void Editor::OperateUser(Operate op, std::string str) {
   }
 }
 
+// 刪除使用者確認頁，至少要保留一位使用者。
 void Editor::OperateDelUser(Operate op, std::string str) {
   User& user = users[curr_user];
   std::string user_name = user.GetUserName();
@@ -365,6 +391,7 @@ void Editor::OperateDelUser(Operate op, std::string str) {
   }
 }
 
+// 背包介面：使用道具、查看背包，或只查看技能庫。
 void Editor::OperateBackpack(Operate op, std::string str) {
   User& user = users[curr_user];
   if ( op == Operate::Unknown ) {
@@ -379,6 +406,7 @@ void Editor::OperateBackpack(Operate op, std::string str) {
   } else if ( op == Operate::SkillLibrary ) {
     user.ListSkillLibrary();
   } else if ( op == Operate::UseItem ) {
+    // 若道具目標是刀盾，先進入選擇刀盾介面。
     ItemType type = user.GetItemOfBackpack(use_item_of_bp);
     ItemInfo info = ItemDatabase::GetInfo(type);
     if ( type != ItemType::None &&
@@ -393,6 +421,7 @@ void Editor::OperateBackpack(Operate op, std::string str) {
   }
 }
 
+// 道具需要指定刀盾時，這裡負責接收目標刀盾編號。
 void Editor::OperateSelectTargetDD(Operate op, std::string str) {
   User& user = users[curr_user];
   if ( op == Operate::Unknown ) {
@@ -405,6 +434,7 @@ void Editor::OperateSelectTargetDD(Operate op, std::string str) {
       user.ListBackpack(false);
       control = Control::Backpack;
     } else if ( op == Operate::SelectTargetDD ) {
+      // 使用完成後清掉暫存編號，回到背包。
       user.UseItem(use_item_of_bp, select_dd_index);
       
       use_item_of_bp = -1;
@@ -414,6 +444,7 @@ void Editor::OperateSelectTargetDD(Operate op, std::string str) {
     }
   }
 
+// 裝備技能介面：先由 eq1~eq4 決定格子，再用技能庫編號選技能。
 void Editor::OperateEquipSkill(Operate op, std::string str) {
   User& user = users[curr_user];
   if ( op == Operate::Unknown ) {
@@ -426,12 +457,14 @@ void Editor::OperateEquipSkill(Operate op, std::string str) {
     IO::PrintEquipSkillPrompt(equip_skill_slot);
     user.ListSkillLibrary();
   } else if ( op == Operate::EquipSkill ) {
+    // User 會負責檢查普攻格、技能是否已被其他刀盾裝備。
     user.EquipSkillToCurrentDD(equip_skill_slot, std::stoi(str));
     equip_skill_slot = -1;
     control = Control::DogDoing;
   }
 }
 
+// 探索選單：選擇要挑戰的怪物，start 後才進入 Battle。
 void Editor::BattleTest() {
   int selected_enemy = 1;
   int enemy_count = 13;
@@ -442,11 +475,16 @@ void Editor::BattleTest() {
     IO::PrintOperateWating();
     if ( IO::GetToken(op) == false ) {
       IO::PrintCinError();
-      continue;
+      game_running = false;
+      return;
     }
 
     op = ToLower(op);
-    if ( op == "start" ) {
+    if ( op == "q" || op == "quit" ) {
+      game_running = false;
+      return;
+    } else if ( op == "start" ) {
+      // 使用目前選中的怪物開始戰鬥。
       StartBattleTest(selected_enemy);
       return;
     }
@@ -458,6 +496,7 @@ void Editor::BattleTest() {
       IO::PrintBacktoDD();
       return;
     } else if ( IsDigit(op) ) {
+      // 數字只切換選中的怪物，不會立刻開戰。
       int select = std::stoi(op);
       if ( select < 1 || select > enemy_count ) {
         IO::PrintBattleTestError();
@@ -471,6 +510,7 @@ void Editor::BattleTest() {
   }
 }
 
+// 依照探索選單的編號建立怪物，戰鬥勝利後處理技能掉落。
 void Editor::StartBattleTest(int enemy_index) {
   User& user = users[curr_user];
   std::unique_ptr<Enemy> enemy;
@@ -510,10 +550,12 @@ void Editor::StartBattleTest(int enemy_index) {
   Battle battle(user, user.GetCurrentDD(), *enemy);
   battle.Run();
   if ( user.GetCurrentDD().GetHp() > 0 ) {
+    // 掉落只會從這隻怪物自己擁有的技能中抽。
     user.TryDropSkill(enemy->GetAllSkillID());
   }
 }
 
+// 設定商店販售的商品。
 void Editor::SetUpShop() {
   shop.AddProduct(new ProductDD());
   shop.AddProduct(new ProductSkillJar());
@@ -529,6 +571,7 @@ std::vector<std::string> Editor::GetUserNameArray() const {
   return names;
 }
 
+// 整個遊戲主迴圈：讀取輸入後，依目前介面分派給對應處理函式。
 void Editor::Run() {
   Start();
   NewUser();
@@ -536,13 +579,18 @@ void Editor::Run() {
   IO::PrintHelpHint();
   std::string str;
   Operate op = Operate::None;
-  while ( op != Operate::Quit ) {     
+  while ( game_running ) {     
     IO::PrintOperateWating();
     if ( !IO::GetToken(str) ) {
       IO::PrintCinError();
-      continue;
+      game_running = false;
+      break;
     }
     op = GetOp(str);
+    if ( op == Operate::Quit ) {
+      game_running = false;
+      break;
+    }
     if ( control == Control::DogDoing ) {
       OperateDogDoing(op, str);
     } else if ( control == Control::Shop ) {

@@ -3,6 +3,7 @@
 #include "../include/Random.h"
 
 namespace {
+// 依照稀有度權重抽技能，common_percent / rare_percent 決定抽池機率。
 SkillID RandomSkillByRarity(int common_percent, int rare_percent) {
   std::vector<SkillID> common = {
     SkillID::Heal,
@@ -43,6 +44,7 @@ SkillID RandomSkillByRarity(int common_percent, int rare_percent) {
 }
 }
 
+// 技能資料庫：角色只存 SkillID，真正使用時才在這裡查技能內容。
 SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
   if (id == SkillID::None ) {
     return{
@@ -326,6 +328,7 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
   };
 }
 
+// 決定技能稀有度，影響技能庫顯示和技能罐抽取分類。
 SkillRarity SkillDataBase::GetSkillRarity(SkillID skill_id) {
   if ( skill_id == SkillID::PowerStrike ||
        skill_id == SkillID::GuardBreak ||
@@ -364,6 +367,7 @@ std::string SkillDataBase::GetSkillRarityName(SkillID skill_id) {
 }
 
 std::vector<SkillID> SkillDataBase::GetAllLearnableSkills() {
+  // op 指令會使用這份清單一次發放所有可學技能。
   return {
     SkillID::NormalAttack,
     SkillID::Heal,
@@ -394,10 +398,12 @@ std::vector<SkillID> SkillDataBase::GetAllLearnableSkills() {
   };
 }
 
+// 技能罐用的抽取池，普通技能機率最高。
 SkillID SkillDataBase::GetRandomJarSkill() {
   return RandomSkillByRarity(65, 28);
 }
 
+// 保留給等級式掉落使用；目前怪物掉落只掉怪物自己的技能。
 SkillID SkillDataBase::GetRandomDropSkill(int enemy_level) {
   if ( enemy_level >= 8 ) {
     return RandomSkillByRarity(45, 38);

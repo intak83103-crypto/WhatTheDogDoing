@@ -36,6 +36,7 @@ private:
   int use_item_of_bp = -1;
   int select_dd_index = -1;
   int equip_skill_slot = -1;
+  bool game_running = true;
 
   std::vector<std::string> GetUserNameArray() const;
   void NewUser();

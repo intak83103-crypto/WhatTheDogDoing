@@ -41,16 +41,16 @@ std::string BattleTestEnemyName(int index) {
     return "獵魔士";
   }
   if ( index == 10 ) {
-    return "石甲守衛（Lv.3 門檻）";
+    return "石甲守衛";
   }
   if ( index == 11 ) {
-    return "獸人戰士（Lv.5 門檻）";
+    return "獸人戰士";
   }
   if ( index == 12 ) {
-    return "血族公爵（Lv.8 門檻）";
+    return "血族公爵";
   }
   if ( index == 13 ) {
-    return "深淵王（Lv.10 門檻）";
+    return "深淵王";
   }
   return "未知怪物";
 }

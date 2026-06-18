@@ -144,6 +144,7 @@ bool Creature::AddSkill(SkillID skill) {
   return true;
 }
 
+// 指定技能格換技能；第 1 格只能放普攻，第 2~4 格不能放普攻。
 bool Creature::SetSkill(int index, SkillID skill) {
   index--;
   if ( index < 0 || index >= 4 ) {
@@ -160,8 +161,10 @@ bool Creature::SetSkill(int index, SkillID skill) {
   }
 
   if ( skill_list[index] == SkillID::None && skill != SkillID::None ) {
+    // 從空格變成有技能時，技能數量增加。
     num_of_skill++;
   } else if ( skill_list[index] != SkillID::None && skill == SkillID::None ) {
+    // 從有技能變成空格時，技能數量減少。
     num_of_skill--;
   }
 
@@ -202,6 +205,7 @@ SkillID Creature::GetIndexOfSkillList(int index) const {
   return skill_list[index];
 }
 
+// 取得目前生物擁有的技能，怪物掉落會用這份清單當掉落池。
 std::vector<SkillID> Creature::GetAllSkillID() const {
   std::vector<SkillID> skills;
   for ( int i = 0; i < 4; i++ ) {
@@ -248,6 +252,7 @@ void Creature::SetSkillCd(int index, int cd) {
 }
 
 void Creature::ReduceSkillCD() {
+  // 每次正常回合結束，所有技能冷卻減 1，最低不低於 0。
   for ( int i = 0; i < 4; i++ ) {
     skill_cd[i]--;
     if ( skill_cd[i] <= 0 ) {
@@ -255,7 +260,9 @@ void Creature::ReduceSkillCD() {
     }
   }
 }
+
 void Creature::ReSetSkillCD(int index) {
+  // 使用技能後，把該技能冷卻設回技能資料庫定義的 CD。
   index--;
   SkillID id = skill_list[index];
   SkillInfo info = SkillDataBase::GetSkillInfo(id);
@@ -269,6 +276,7 @@ void Creature::ResetSkillCD() {
 }
 
 void Creature::ListSkill() const{
+  // 列出固定 4 格技能，空格也顯示出來，方便玩家看裝備狀態。
   std::vector<std::string> list;
   for ( int i = 0; i < 4; i++ ) {
     if ( skill_list[i] != SkillID::None ) {

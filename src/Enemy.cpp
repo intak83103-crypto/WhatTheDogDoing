@@ -32,6 +32,7 @@ void Enemy::PrintBattleInfo() const {
   ListSkill();
 }
 
+// 基礎史萊姆，元素史萊姆會繼承這組數值和技能再改元素。
 Slime::Slime() {
   SetName("史萊姆");
   SetLevel(1);
@@ -50,6 +51,7 @@ void Enemy::PrintInfo() const {
   // 之後再做 IO::PrintEnemyInfo
 }
 
+// 以下元素史萊姆只改元素和名稱，強度沿用 Slime。
 FireSlime::FireSlime() : Slime(){
   SetElement(Element::Fire);
   SetName("火史萊姆");
@@ -80,6 +82,7 @@ LightSlime::LightSlime() : Slime(){
   SetName("光史萊姆");
 }
 
+// 早期物理怪，會用戰吼和高倍率攻擊壓玩家。
 Goblin::Goblin() {
   SetName("哥布林");
   SetLevel(3);
@@ -96,6 +99,7 @@ Goblin::Goblin() {
   AddSkill(SkillID::Goblin_SneakAttack);
 }
 
+// 中期吸血怪，主要特色是最大生命傷害、DOT 和吸血。
 Vampire::Vampire() {
   SetName("吸血鬼");
   SetLevel(5);
@@ -112,6 +116,7 @@ Vampire::Vampire() {
   AddSkill(SkillID::Vampire_Blood_Mist);
 }
 
+// 中期光屬性怪，特色是暴擊和額外回合。
 DemonHunter::DemonHunter() {
   SetName("獵魔士");
   SetLevel(6);
@@ -128,6 +133,7 @@ DemonHunter::DemonHunter() {
   AddSkill(SkillID::DemonHunter_ExecutionStance);
 }
 
+// Lv.3 門檻怪，設計成防禦、破防和再生的壓力測試。
 StoneGuardian::StoneGuardian() {
   SetName("石甲守衛");
   SetLevel(3);
@@ -144,6 +150,7 @@ StoneGuardian::StoneGuardian() {
   AddSkill(SkillID::Regeneration);
 }
 
+// Lv.5 門檻怪，設計成戰吼後打高傷害的物理壓力怪。
 OrcWarrior::OrcWarrior() {
   SetName("獸人戰士");
   SetLevel(5);
@@ -160,6 +167,7 @@ OrcWarrior::OrcWarrior() {
   AddSkill(SkillID::GuardBreak);
 }
 
+// Lv.8 門檻怪，會用 DOT、吸血和最大生命傷害拖長戰鬥。
 VampireDuke::VampireDuke() {
   SetName("血族公爵");
   SetLevel(8);
@@ -176,6 +184,7 @@ VampireDuke::VampireDuke() {
   AddSkill(SkillID::FlameBurst);
 }
 
+// Lv.10 門檻 Boss，混合額外回合、燃燒和吸血。
 AbyssKing::AbyssKing() {
   SetName("深淵王");
   SetLevel(10);

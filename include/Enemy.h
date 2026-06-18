@@ -7,12 +7,15 @@ class Enemy : public Creature {
 private:
   int exp_reward = 0;
   int coin_reward = 0;
+  int level = 1;
 
 public:
   int GetExpReward() const;
   int GetCoinReward() const;
+  int GetLevel() const;
   void SetExpReward(int exp_reward);
   void SetCoinReward(int coin_reward);
+  void SetLevel(int level);
   void PrintInfo() const override;
   void PrintBattleInfo() const override;
 };
@@ -66,6 +69,26 @@ public:
 class DemonHunter : public Enemy {
 public:
   DemonHunter();
+};
+
+class StoneGuardian : public Enemy {
+public:
+  StoneGuardian();
+};
+
+class OrcWarrior : public Enemy {
+public:
+  OrcWarrior();
+};
+
+class VampireDuke : public Enemy {
+public:
+  VampireDuke();
+};
+
+class AbyssKing : public Enemy {
+public:
+  AbyssKing();
 };
 
 #endif

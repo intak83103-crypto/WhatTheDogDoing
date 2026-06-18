@@ -144,6 +144,41 @@ bool Creature::AddSkill(SkillID skill) {
   return true;
 }
 
+bool Creature::SetSkill(int index, SkillID skill) {
+  index--;
+  if ( index < 0 || index >= 4 ) {
+    IO::PrintSkillSelectError();
+    return false;
+  }
+  if ( index == 0 && skill != SkillID::NormalAttack ) {
+    IO::PrintNormalAttackError();
+    return false;
+  }
+  if ( index != 0 && skill == SkillID::NormalAttack ) {
+    IO::PrintNormalAttackError();
+    return false;
+  }
+
+  if ( skill_list[index] == SkillID::None && skill != SkillID::None ) {
+    num_of_skill++;
+  } else if ( skill_list[index] != SkillID::None && skill == SkillID::None ) {
+    num_of_skill--;
+  }
+
+  skill_list[index] = skill;
+  skill_cd[index] = 0;
+  return true;
+}
+
+bool Creature::HasSkill(SkillID skill) const {
+  for ( int i = 0; i < 4; i++ ) {
+    if ( skill_list[i] == skill ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 bool Creature::DeleteSKill(int index) {
   index--;
   if ( index == 0 ) {
@@ -165,6 +200,16 @@ SkillID Creature::GetIndexOfSkillList(int index) const {
     return SkillID::None;
   }
   return skill_list[index];
+}
+
+std::vector<SkillID> Creature::GetAllSkillID() const {
+  std::vector<SkillID> skills;
+  for ( int i = 0; i < 4; i++ ) {
+    if ( skill_list[i] != SkillID::None ) {
+      skills.push_back(skill_list[i]);
+    }
+  }
+  return skills;
 }
 
 void Creature::MinusHp(int minus) {
@@ -203,7 +248,7 @@ void Creature::SetSkillCd(int index, int cd) {
 }
 
 void Creature::ReduceSkillCD() {
-  for ( int i = 0; i < num_of_skill; i++ ) {
+  for ( int i = 0; i < 4; i++ ) {
     skill_cd[i]--;
     if ( skill_cd[i] <= 0 ) {
       skill_cd[i] = 0;
@@ -230,6 +275,9 @@ void Creature::ListSkill() const{
       SkillInfo info = SkillDataBase::GetSkillInfo(skill_list[i]);
       list.push_back(info.skill_name);
       list.push_back(info.skill_info);
+    } else {
+      list.push_back("空技能格");
+      list.push_back("尚未裝備技能");
     }
   }
   IO::CreatureListSkill(list, skill_cd);

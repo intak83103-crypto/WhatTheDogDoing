@@ -56,8 +56,11 @@ public:
   void AddUltEnergy(int value);
   void UseUltEnergy();
   bool AddSkill(SkillID skill);
+  bool SetSkill(int index, SkillID skill);
+  bool HasSkill(SkillID skill) const;
   bool DeleteSKill(int index);
   SkillID GetIndexOfSkillList(int index) const;
+  std::vector<SkillID> GetAllSkillID() const;
   void MinusHp(int minus);
   int GetNumOfSkill() const;
   void SetNumOfSkill(int num);

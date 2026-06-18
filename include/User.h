@@ -38,6 +38,15 @@ public:
   int GetCoin() const;
   void AddCoin(int coins);
   bool PayCoin(int price);
+  bool LearnSkill(SkillID skill);
+  SkillID LearnRandomSkillFromJar();
+  SkillID TryDropSkill(const std::vector<SkillID>& enemy_skills);
+  bool HasSkill(SkillID skill) const;
+  bool IsSkillEquipped(SkillID skill, int except_dd = -1) const;
+  bool EquipSkillToCurrentDD(int slot, int skill_index);
+  void ListSkillLibrary() const;
+  void GrantAllSkills();
+  void GrantAllElementDogDoings();
   void PrintInfo() const;
   void SwitchDD(int index);
   void GetItem(ItemType type);

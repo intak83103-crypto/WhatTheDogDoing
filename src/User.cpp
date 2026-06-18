@@ -3,6 +3,7 @@
 #include <cstddef>
 
 #include "../include/IO.h"
+#include "../include/Random.h"
 
 User::User() {}
 
@@ -15,7 +16,8 @@ User::User(std::string name, int id) {
   IO::FirstDD();
   dogdoings.emplace_back(DogDoing(id_of_dd++));
   curr_dd = 0;
-  coin = 5000;
+  coin = 50;
+  LearnSkill(SkillID::NormalAttack);
   backpack = {};
 }
 
@@ -67,6 +69,132 @@ bool User::PayCoin(int price) {
   }
   coin -= price;
   return true;
+}
+
+bool User::HasSkill(SkillID skill) const {
+  for ( SkillID owned_skill : skill_list ) {
+    if ( owned_skill == skill ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool User::LearnSkill(SkillID skill) {
+  if ( skill == SkillID::None ) {
+    return false;
+  }
+  if ( HasSkill(skill) ) {
+    return false;
+  }
+  skill_list.push_back(skill);
+  return true;
+}
+
+SkillID User::LearnRandomSkillFromJar() {
+  for ( int i = 0; i < 20; i++ ) {
+    SkillID skill = SkillDataBase::GetRandomJarSkill();
+    if ( LearnSkill(skill) ) {
+      IO::PrintLearnSkill(skill, "技能罐");
+      return skill;
+    }
+  }
+  IO::PrintSkillLibraryFull();
+  return SkillID::None;
+}
+
+SkillID User::TryDropSkill(const std::vector<SkillID>& enemy_skills) {
+  if ( Random::RandomChance(35) == false ) {
+    IO::PrintNoSkillDrop();
+    return SkillID::None;
+  }
+
+  std::vector<SkillID> drop_pool;
+  for ( SkillID skill : enemy_skills ) {
+    if ( skill == SkillID::None || skill == SkillID::NormalAttack ) {
+      continue;
+    }
+    if ( HasSkill(skill) == false ) {
+      drop_pool.push_back(skill);
+    }
+  }
+
+  if ( drop_pool.empty() ) {
+    IO::PrintSkillLibraryFull();
+    return SkillID::None;
+  }
+
+  int drop_index = Random::RandomInt(0, drop_pool.size() - 1);
+  SkillID skill = drop_pool[drop_index];
+  LearnSkill(skill);
+  IO::PrintLearnSkill(skill, "怪物掉落");
+  return skill;
+}
+
+bool User::IsSkillEquipped(SkillID skill, int except_dd) const {
+  if ( skill == SkillID::NormalAttack ) {
+    return false;
+  }
+
+  int n = dogdoings.size();
+  for ( int i = 0; i < n; i++ ) {
+    if ( i == except_dd ) {
+      continue;
+    }
+    if ( dogdoings[i].HasSkill(skill) ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool User::EquipSkillToCurrentDD(int slot, int skill_index) {
+  int real_skill_index = skill_index - 1;
+  if ( real_skill_index < 0 ||
+       static_cast<std::size_t>(real_skill_index) >= skill_list.size() ) {
+    IO::PrintSkillSelectError();
+    return false;
+  }
+
+  SkillID skill = skill_list[real_skill_index];
+  if ( slot == 1 && skill != SkillID::NormalAttack ) {
+    IO::PrintNormalAttackError();
+    return false;
+  }
+  if ( slot != 1 && skill == SkillID::NormalAttack ) {
+    IO::PrintNormalAttackError();
+    return false;
+  }
+  if ( IsSkillEquipped(skill, curr_dd) ) {
+    IO::PrintSkillAlreadyEquipped();
+    return false;
+  }
+  bool success = dogdoings[curr_dd].SetSkill(slot, skill);
+  if ( success ) {
+    IO::PrintEquipSkillSuccess(dogdoings[curr_dd].GetName(), slot, skill);
+  }
+  return success;
+}
+
+void User::ListSkillLibrary() const {
+  IO::ListSkillLibrary(name, skill_list);
+}
+
+void User::GrantAllSkills() {
+  std::vector<SkillID> all_skills = SkillDataBase::GetAllLearnableSkills();
+  for ( SkillID skill : all_skills ) {
+    LearnSkill(skill);
+  }
+}
+
+void User::GrantAllElementDogDoings() {
+  dogdoings.emplace_back(DogDoing("FireDogDoing", Element::Fire));
+  dogdoings.emplace_back(DogDoing("WaterDogDoing", Element::Water));
+  dogdoings.emplace_back(DogDoing("ThunderDogDoing", Element::Thunder));
+  dogdoings.emplace_back(DogDoing("GrassDogDoing", Element::Grass));
+  dogdoings.emplace_back(DogDoing("DarkDogDoing", Element::Dark));
+  dogdoings.emplace_back(DogDoing("LightDogDoing", Element::Light));
+  curr_dd = dogdoings.size() - 1;
 }
 
 void User::PrintInfo() const {

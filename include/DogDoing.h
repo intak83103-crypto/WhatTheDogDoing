@@ -30,6 +30,7 @@ public:
   DogDoing();
   explicit DogDoing(int i);
   explicit DogDoing(std::string name);
+  DogDoing(std::string name, Element element);
   int GetCrit() const;
   int GetLevel() const;
   int GetRank() const;

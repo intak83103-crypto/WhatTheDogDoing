@@ -21,4 +21,10 @@ public:
   void Apply(User& user) const override;
 };
 
+class ProductSkillJar : public Product {
+public:
+  ProductSkillJar();
+  void Apply(User& user) const override;
+};
+
 #endif

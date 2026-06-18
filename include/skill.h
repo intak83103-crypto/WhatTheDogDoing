@@ -10,10 +10,19 @@ enum class SkillEffect {    // 技能效果
 
 enum class SkillID {        //   角色存取的都是ID，用的時候才會用ID查功能
   None, NormalAttack, Heal, 
+  QuickSlash, PowerStrike, Regeneration, GuardBreak, FlameBurst,
+  IronSkin, Focus, Haste, PoisonNeedle, LifeBloom, LastStand,
+  ThunderStrike, VitalStrike,
   Slime_Attack, 
   Goblin_warCry, Goblin_SneakAttack, Goblin_Bash,
   Vampire_Normal, Vampire_Drain, Vampire_BloodLust, Vampire_Blood_Mist,
   DemonHunter_ExecutionStance, DemonHunter_DemonPiercingBolt, DemonHunter_HolyPurge
+};
+
+enum class SkillRarity {
+  Common,
+  Rare,
+  Epic
 };
 
 enum class SkillControl{    // 技能分成需要命中或是直接生效（為了吸血攻擊設計）
@@ -85,6 +94,11 @@ struct SkillResult {
 class SkillDataBase {
 public:
   static SkillInfo GetSkillInfo(SkillID skill_id);
+  static SkillRarity GetSkillRarity(SkillID skill_id);
+  static std::string GetSkillRarityName(SkillID skill_id);
+  static std::vector<SkillID> GetAllLearnableSkills();
+  static SkillID GetRandomJarSkill();
+  static SkillID GetRandomDropSkill(int enemy_level);
 };
 
 

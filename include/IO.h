@@ -25,6 +25,14 @@ public:
   static void PrintHelpHint();
   static void PrintCinError();
   static void PrintHelpDD(std::string name);
+  static void ListSkillLibrary(std::string user, const std::vector<SkillID>& skills);
+  static void PrintLearnSkill(SkillID skill, std::string source);
+  static void PrintNoSkillDrop();
+  static void PrintSkillLibraryFull();
+  static void PrintSkillAlreadyEquipped();
+  static void PrintEquipSkillSuccess(std::string dd_name, int slot, SkillID skill);
+  static void PrintEquipSkillPrompt(int slot);
+  static void PrintOpDone();
   static void ListAllDD(std::vector<DDtitleInfo> dd, std::string name, int index);
   static void PrintRenameInfo(std::string name);
   static void PrintRenameSuccess(DDInfo dd);

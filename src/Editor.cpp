@@ -2,6 +2,7 @@
 
 #include <cctype>
 #include <cstddef>
+#include <memory>
 
 #include "../include/IO.h"
 #include "../include/Products.h"
@@ -43,6 +44,9 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
     if ( op == "help" || op == "h" ) {
       return Operate::HelpDD;
     } 
+    if ( op == "q" || op == "quit" ) {
+      return Operate::Quit;
+    }
     if ( op == "l" || op == "list" ) {
       return Operate::ListDD;
     } 
@@ -68,8 +72,18 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
     if ( op == "b" || op == "bp" ) {
       return Operate::Backpack;
     }
-    if ( op == "battle_test" ) {
-      return Operate::BattleTest;
+    if ( op == "x" || op == "explore" ) {
+      return Operate::Explore;
+    }
+    if ( op == "k" || op == "skill" || op == "skills" ) {
+      return Operate::SkillLibrary;
+    }
+    if ( op == "op" ) {
+      return Operate::Op;
+    }
+    if ( op == "eq1" || op == "eq2" || op == "eq3" || op == "eq4" ) {
+      equip_skill_slot = op[2] - '0';
+      return Operate::EquipSkill;
     }
 
   } else if ( control == Control::User ) {    // 介面：使用者
@@ -145,6 +159,9 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
     if ( op == "l" || op == "list" ) {
       return Operate::ListBackpack;
     }
+    if ( op == "k" || op == "skill" || op == "skills" ) {
+      return Operate::SkillLibrary;
+    }
     if ( IsDigit(op) ) {
       use_item_of_bp = std::stoi(op);
       return Operate::UseItem;
@@ -158,13 +175,26 @@ Operate Editor::GetOp(std::string op) {     // 在不同介面得到指令
     } else if ( op == "b" || op == "back" ) {
       return Operate::BacktoBackpack;
     }
+  } else if ( control == Control::EquipSkill ) {
+    if ( op == "b" || op == "back" ) {
+      return Operate::BacktoDD;
+    }
+    if ( op == "k" || op == "skill" || op == "skills" ||
+         op == "l" || op == "list" ) {
+      return Operate::SkillLibrary;
+    }
+    if ( IsDigit(op) ) {
+      return Operate::EquipSkill;
+    }
   }
   return Operate::Unknown;
 }
 
 void Editor::OperateDogDoing(Operate op, std::string str) {
   User& user = users[curr_user];
-  if ( op == Operate::HelpDD ) {
+  if ( op == Operate::Quit ) {
+    return;
+  } else if ( op == Operate::HelpDD ) {
     IO::PrintHelpDD(user.GetUserName());
   } else if ( op == Operate::Unknown ) {
     IO::PrintInputError(str);
@@ -201,6 +231,20 @@ void Editor::OperateDogDoing(Operate op, std::string str) {
     control = Control::Backpack;
     IO::PrintSwitchBackpack();
     user.ListBackpack(false);
+  } else if ( op == Operate::Explore ) {
+    BattleTest();
+  } else if ( op == Operate::SkillLibrary ) {
+    user.ListSkillLibrary();
+    user.GetCurrentDD().ListSkill();
+  } else if ( op == Operate::EquipSkill ) {
+    control = Control::EquipSkill;
+    IO::PrintEquipSkillPrompt(equip_skill_slot);
+    user.ListSkillLibrary();
+  } else if ( op == Operate::Op ) {
+    user.AddCoin(10000);
+    user.GrantAllSkills();
+    user.GrantAllElementDogDoings();
+    IO::PrintOpDone();
   } else if ( op == Operate::BattleTest ) {
     BattleTest();
   }
@@ -332,6 +376,8 @@ void Editor::OperateBackpack(Operate op, std::string str) {
     IO::HelpBackpack();
   } else if ( op == Operate::ListBackpack ) {
     user.ListBackpack();
+  } else if ( op == Operate::SkillLibrary ) {
+    user.ListSkillLibrary();
   } else if ( op == Operate::UseItem ) {
     ItemType type = user.GetItemOfBackpack(use_item_of_bp);
     ItemInfo info = ItemDatabase::GetInfo(type);
@@ -368,9 +414,27 @@ void Editor::OperateSelectTargetDD(Operate op, std::string str) {
     }
   }
 
+void Editor::OperateEquipSkill(Operate op, std::string str) {
+  User& user = users[curr_user];
+  if ( op == Operate::Unknown ) {
+    IO::PrintInputError(str);
+  } else if ( op == Operate::BacktoDD ) {
+    equip_skill_slot = -1;
+    control = Control::DogDoing;
+    IO::PrintBacktoDD();
+  } else if ( op == Operate::SkillLibrary ) {
+    IO::PrintEquipSkillPrompt(equip_skill_slot);
+    user.ListSkillLibrary();
+  } else if ( op == Operate::EquipSkill ) {
+    user.EquipSkillToCurrentDD(equip_skill_slot, std::stoi(str));
+    equip_skill_slot = -1;
+    control = Control::DogDoing;
+  }
+}
+
 void Editor::BattleTest() {
   int selected_enemy = 1;
-  int enemy_count = 9;
+  int enemy_count = 13;
   std::string op;
 
   IO::PrintBattleTestMenu(selected_enemy);
@@ -409,48 +473,50 @@ void Editor::BattleTest() {
 
 void Editor::StartBattleTest(int enemy_index) {
   User& user = users[curr_user];
-
+  std::unique_ptr<Enemy> enemy;
   if ( enemy_index == 1 ) {
-    FireSlime enemy;
-    Battle battle(user, user.GetCurrentDD(), enemy);
-    battle.Run();
+    enemy = std::make_unique<FireSlime>();
   } else if ( enemy_index == 2 ) {
-    WaterSlime enemy;
-    Battle battle(user, user.GetCurrentDD(), enemy);
-    battle.Run();
+    enemy = std::make_unique<WaterSlime>();
   } else if ( enemy_index == 3 ) {
-    GrassSlime enemy;
-    Battle battle(user, user.GetCurrentDD(), enemy);
-    battle.Run();
+    enemy = std::make_unique<GrassSlime>();
   } else if ( enemy_index == 4 ) {
-    ThunderSlime enemy;
-    Battle battle(user, user.GetCurrentDD(), enemy);
-    battle.Run();
+    enemy = std::make_unique<ThunderSlime>();
   } else if ( enemy_index == 5 ) {
-    DarkSlime enemy;
-    Battle battle(user, user.GetCurrentDD(), enemy);
-    battle.Run();
+    enemy = std::make_unique<DarkSlime>();
   } else if ( enemy_index == 6 ) {
-    LightSlime enemy;
-    Battle battle(user, user.GetCurrentDD(), enemy);
-    battle.Run();
+    enemy = std::make_unique<LightSlime>();
   } else if ( enemy_index == 7 ) {
-    Goblin enemy;
-    Battle battle(user, user.GetCurrentDD(), enemy);
-    battle.Run();
+    enemy = std::make_unique<Goblin>();
   } else if ( enemy_index == 8 ) {
-    Vampire enemy;
-    Battle battle(user, user.GetCurrentDD(), enemy );
-    battle.Run();
+    enemy = std::make_unique<Vampire>();
   } else if ( enemy_index == 9 ) {
-    DemonHunter enemy;
-    Battle battle(user, user.GetCurrentDD(), enemy);
-    battle.Run();
+    enemy = std::make_unique<DemonHunter>();
+  } else if ( enemy_index == 10 ) {
+    enemy = std::make_unique<StoneGuardian>();
+  } else if ( enemy_index == 11 ) {
+    enemy = std::make_unique<OrcWarrior>();
+  } else if ( enemy_index == 12 ) {
+    enemy = std::make_unique<VampireDuke>();
+  } else if ( enemy_index == 13 ) {
+    enemy = std::make_unique<AbyssKing>();
+  }
+
+  if ( enemy == nullptr ) {
+    IO::PrintBattleTestError();
+    return;
+  }
+
+  Battle battle(user, user.GetCurrentDD(), *enemy);
+  battle.Run();
+  if ( user.GetCurrentDD().GetHp() > 0 ) {
+    user.TryDropSkill(enemy->GetAllSkillID());
   }
 }
 
 void Editor::SetUpShop() {
   shop.AddProduct(new ProductDD());
+  shop.AddProduct(new ProductSkillJar());
   shop.AddProduct(new ProductSmallHealPotion());
   shop.AddProduct(new ProductSmallExpPotion());
 }
@@ -491,6 +557,8 @@ void Editor::Run() {
       OperateBackpack(op, str);
     } else if ( control == Control::SelectTargetDD ) {
       OperateSelectTargetDD(op, str);
+    } else if ( control == Control::EquipSkill ) {
+      OperateEquipSkill(op, str);
     }
   }
 }

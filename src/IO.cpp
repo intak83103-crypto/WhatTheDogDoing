@@ -40,6 +40,18 @@ std::string BattleTestEnemyName(int index) {
   if ( index == 9 ) {
     return "獵魔士";
   }
+  if ( index == 10 ) {
+    return "石甲守衛（Lv.3 門檻）";
+  }
+  if ( index == 11 ) {
+    return "獸人戰士（Lv.5 門檻）";
+  }
+  if ( index == 12 ) {
+    return "血族公爵（Lv.8 門檻）";
+  }
+  if ( index == 13 ) {
+    return "深淵王（Lv.10 門檻）";
+  }
   return "未知怪物";
 }
 }
@@ -157,9 +169,79 @@ void IO::PrintHelpDD(std::string name) {
   std::cout << "D / DD    | 查看當前刀盾數值" << std::endl;
   std::cout << "R / Rn    | 更改目前刀盾名稱" << std::endl;
   std::cout << "B / bp    | 查看" << name << "的背包" << std::endl;
+  std::cout << "K / Skill | 查看技能庫" << std::endl;
+  std::cout << "eq1~eq4   | 裝備技能到指定技能格" << std::endl;
+  std::cout << "X / Explore | 探索並選擇怪物戰鬥" << std::endl;
   std::cout << "S / Shop  | 查看商店" << std::endl;
   std::cout << "M / Me    | 查看" << name << "的資訊" << std::endl;
   std::cout << "U / User  | 進入使用者介面" << std::endl;
+  std::cout << "op        | 快速測試指令" << std::endl;
+  std::cout << "Q / Quit  | 離開遊戲" << std::endl;
+}
+
+void IO::ListSkillLibrary(std::string user, const std::vector<SkillID>& skills) {
+  PrintDot(7);
+  Divider();
+  std::cout << user << "的技能庫：" << std::endl;
+  Divider();
+  if ( skills.empty() ) {
+    std::cout << "目前沒有技能" << std::endl;
+    return;
+  }
+  for ( int i = 0; i < static_cast<int>(skills.size()); i++ ) {
+    SkillInfo info = SkillDataBase::GetSkillInfo(skills[i]);
+    std::cout << i + 1 << " | [" << SkillDataBase::GetSkillRarityName(skills[i])
+              << "] < " << info.skill_name << " > : "
+              << info.skill_info << std::endl;
+  }
+}
+
+void IO::PrintLearnSkill(SkillID skill, std::string source) {
+  SkillInfo info = SkillDataBase::GetSkillInfo(skill);
+  PrintDot(2);
+  Divider();
+  std::cout << source << "獲得技能：[" << SkillDataBase::GetSkillRarityName(skill)
+            << "] " << info.skill_name << std::endl;
+}
+
+void IO::PrintNoSkillDrop() {
+  PrintDot(1);
+  std::cout << "這次沒有掉落技能" << std::endl;
+}
+
+void IO::PrintSkillLibraryFull() {
+  PrintDot(1);
+  std::cout << "技能庫已經沒有新的技能可以獲得" << std::endl;
+}
+
+void IO::PrintSkillAlreadyEquipped() {
+  PrintDot(1);
+  std::cout << "這個技能已經被其他刀盾裝備了" << std::endl;
+}
+
+void IO::PrintEquipSkillSuccess(std::string dd_name, int slot, SkillID skill) {
+  SkillInfo info = SkillDataBase::GetSkillInfo(skill);
+  PrintDot(2);
+  Divider();
+  std::cout << dd_name << " 的第 " << slot << " 格已裝備："
+            << info.skill_name << std::endl;
+}
+
+void IO::PrintEquipSkillPrompt(int slot) {
+  PrintDot(2);
+  Divider();
+  std::cout << "選擇要裝備到第 " << slot << " 格的技能編號" << std::endl;
+  if ( slot == 1 ) {
+    std::cout << "第 1 格只能放普通攻擊" << std::endl;
+  } else {
+    std::cout << "第 2~4 格不能放普通攻擊，且同一技能只能裝在一隻刀盾上" << std::endl;
+  }
+}
+
+void IO::PrintOpDone() {
+  PrintDot(3);
+  Divider();
+  std::cout << "OP 指令完成：獲得 $10000、所有技能、全屬性刀盾" << std::endl;
 }
 
 void IO::ListAllDD(std::vector<DDtitleInfo> dd, std::string name, int index) {
@@ -481,6 +563,7 @@ void IO::HelpBackpack() {
   std::cout << "HELP!" << std::endl;
   Divider();
   std::cout << "L / List  | 列出所有背包物品 " << std::endl;
+  std::cout << "K / Skill | 查看技能庫" << std::endl;
   std::cout << "          | 輸入數字使用物品" << std::endl;
   std::cout << "b / back  | 回到刀盾頁面" << std::endl;    
 }
@@ -705,11 +788,11 @@ void IO::PrintBattleHpInfo(CreatureInfo info) {
 void IO::PrintBattleTestMenu(int selected) {
   PrintDot(9);
   Divider();
-  std::cout << "戰鬥測試" << std::endl;
+  std::cout << "探索" << std::endl;
   Divider();
-  std::cout << "輸入數字切換測試怪物，輸入 start 開始戰鬥" << std::endl;
+  std::cout << "輸入數字切換怪物，輸入 start 開始戰鬥" << std::endl;
   Divider();
-  for ( int i = 0; i < 9; i++ ) {
+  for ( int i = 0; i < 13; i++ ) {
     std::cout << i + 1;
     if ( i + 1 == selected ) {
       std::cout << "  >  ";
@@ -726,23 +809,23 @@ void IO::PrintBattleTestHelp() {
   Divider();
   std::cout << "HELP!" << std::endl;
   Divider();
-  std::cout << "          | 切換測試怪物" << std::endl;
+  std::cout << "          | 切換怪物" << std::endl;
   std::cout << "start     | 開始戰鬥" << std::endl;
   std::cout << "list / l  | 列出怪物" << std::endl;
-  std::cout << "back / b  | 離開戰鬥測試" << std::endl;
+  std::cout << "back / b  | 離開探索" << std::endl;
 }
 
 void IO::PrintBattleTestSelect(int selected) {
   PrintDot(9);
   Divider();
-  std::cout << "已選擇測試怪物 : "
+  std::cout << "已選擇怪物 : "
             << BattleTestEnemyName(selected) << std::endl;
 }
 
 void IO::PrintBattleTestError() {
   PrintDot(9);
   Divider();
-  std::cout << "找不到這個測試怪物" << std::endl;
+  std::cout << "找不到這個怪物" << std::endl;
 }
 
 void IO::PrintGetExp(std::string name, int exp) {

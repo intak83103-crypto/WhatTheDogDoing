@@ -1,5 +1,48 @@
 #include "../include/skill.h"
 
+#include "../include/Random.h"
+
+namespace {
+SkillID RandomSkillByRarity(int common_percent, int rare_percent) {
+  std::vector<SkillID> common = {
+    SkillID::Heal,
+    SkillID::QuickSlash,
+    SkillID::Regeneration,
+    SkillID::IronSkin,
+    SkillID::Haste,
+    SkillID::PoisonNeedle,
+    SkillID::Slime_Attack
+  };
+  std::vector<SkillID> rare = {
+    SkillID::PowerStrike,
+    SkillID::GuardBreak,
+    SkillID::Focus,
+    SkillID::LifeBloom,
+    SkillID::ThunderStrike,
+    SkillID::Goblin_Bash,
+    SkillID::Goblin_warCry
+  };
+  std::vector<SkillID> epic = {
+    SkillID::FlameBurst,
+    SkillID::LastStand,
+    SkillID::VitalStrike,
+    SkillID::Vampire_Drain,
+    SkillID::Vampire_BloodLust,
+    SkillID::DemonHunter_DemonPiercingBolt,
+    SkillID::DemonHunter_HolyPurge
+  };
+
+  int roll = Random::RandomInt(1, 100);
+  if ( roll <= common_percent ) {
+    return common[Random::RandomInt(0, common.size() - 1)];
+  }
+  if ( roll <= common_percent + rare_percent ) {
+    return rare[Random::RandomInt(0, rare.size() - 1)];
+  }
+  return epic[Random::RandomInt(0, epic.size() - 1)];
+}
+}
+
 SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
   if (id == SkillID::None ) {
     return{
@@ -26,6 +69,141 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       SkillEffect::Heal,
       2,
       {{SkillEffect::Heal, 80, SkillControl::Always, SkillValueType::AtkPercent}},
+      {{BattleBuffType::NoBuff, BuffTarget::Self, BuffValueType::Fixed, "", 0, 0}}
+    };
+  } else if ( id == SkillID::QuickSlash ) {
+    return{
+      "迅斬",
+      "造成攻擊力 130% 的傷害，冷卻很短",
+      SkillEffect::Attack,
+      1,
+      {{SkillEffect::Attack, 130, SkillControl::Always, SkillValueType::AtkPercent}},
+      {{BattleBuffType::NoBuff, BuffTarget::Self, BuffValueType::Fixed, "", 0, 0}}
+    };
+  } else if ( id == SkillID::PowerStrike ) {
+    return{
+      "強力斬擊",
+      "造成攻擊力 210% 的傷害",
+      SkillEffect::Attack,
+      4,
+      {{SkillEffect::Attack, 210, SkillControl::Always, SkillValueType::AtkPercent}},
+      {{BattleBuffType::NoBuff, BuffTarget::Self, BuffValueType::Fixed, "", 0, 0}}
+    };
+  } else if ( id == SkillID::Regeneration ) {
+    return{
+      "再生",
+      "持續三回合：每回合恢復最大生命值 8%",
+      SkillEffect::Buff,
+      4,
+      {{SkillEffect::Buff, 0, SkillControl::Always, SkillValueType::Fixed}},
+      {{BattleBuffType::HotHeal, BuffTarget::Self, BuffValueType::Percent,
+        "再生 : 每回合恢復最大生命值 8% 的血量", 3, 8}}
+    };
+  } else if ( id == SkillID::GuardBreak ) {
+    return{
+      "破防打擊",
+      "造成攻擊力 120% 的傷害，命中後讓敵人三回合受到更多傷害",
+      SkillEffect::Attack,
+      3,
+      {{SkillEffect::Attack, 120, SkillControl::Always, SkillValueType::AtkPercent},
+       {SkillEffect::Buff, 0, SkillControl::AttackHit, SkillValueType::Fixed}},
+      {{BattleBuffType::AddDefend, BuffTarget::Opponent, BuffValueType::Fixed,
+        "破防 : 受到傷害提高 25%", 3, -25}}
+    };
+  } else if ( id == SkillID::FlameBurst ) {
+    return{
+      "烈焰爆發",
+      "造成攻擊力 190% 的傷害，命中後施加燃燒",
+      SkillEffect::Attack,
+      5,
+      {{SkillEffect::Attack, 190, SkillControl::Always, SkillValueType::AtkPercent},
+       {SkillEffect::Buff, 0, SkillControl::AttackHit, SkillValueType::Fixed}},
+      {{BattleBuffType::DotDamage, BuffTarget::Opponent, BuffValueType::Percent,
+        "燃燒 : 每回合受到攻擊者最大生命值 7% 的傷害", 3, 7}}
+    };
+  } else if ( id == SkillID::IronSkin ) {
+    return{
+      "鐵皮",
+      "持續三回合：減少 25% 受到的傷害",
+      SkillEffect::Buff,
+      3,
+      {{SkillEffect::Buff, 0, SkillControl::Always, SkillValueType::Fixed}},
+      {{BattleBuffType::AddDefend, BuffTarget::Self, BuffValueType::Fixed,
+        "鐵皮 : 受到傷害減少 25%", 3, 25}}
+    };
+  } else if ( id == SkillID::Focus ) {
+    return{
+      "專注",
+      "持續三回合：命中率 +15%，暴擊率 +15%",
+      SkillEffect::Buff,
+      4,
+      {{SkillEffect::Buff, 0, SkillControl::Always, SkillValueType::Fixed}},
+      {{BattleBuffType::AddHitRate, BuffTarget::Self, BuffValueType::Fixed,
+        "專注 : 命中率 +15%", 3, 15},
+       {BattleBuffType::AddCritRate, BuffTarget::Self, BuffValueType::Fixed,
+        "專注 : 暴擊率 +15%", 3, 15}}
+    };
+  } else if ( id == SkillID::Haste ) {
+    return{
+      "加速",
+      "持續三回合：速度 +5",
+      SkillEffect::Buff,
+      3,
+      {{SkillEffect::Buff, 0, SkillControl::Always, SkillValueType::Fixed}},
+      {{BattleBuffType::AddSpeed, BuffTarget::Self, BuffValueType::Fixed,
+        "加速 : 速度 +5", 3, 5}}
+    };
+  } else if ( id == SkillID::PoisonNeedle ) {
+    return{
+      "毒針",
+      "造成攻擊力 90% 的傷害，命中後施加中毒",
+      SkillEffect::Attack,
+      2,
+      {{SkillEffect::Attack, 90, SkillControl::Always, SkillValueType::AtkPercent},
+       {SkillEffect::Buff, 0, SkillControl::AttackHit, SkillValueType::Fixed}},
+      {{BattleBuffType::DotDamage, BuffTarget::Opponent, BuffValueType::Percent,
+        "中毒 : 每回合受到攻擊者最大生命值 5% 的傷害", 3, 5}}
+    };
+  } else if ( id == SkillID::LifeBloom ) {
+    return{
+      "生命綻放",
+      "立即回復攻擊力 70% 的生命，並獲得三回合持續回血",
+      SkillEffect::Heal,
+      4,
+      {{SkillEffect::Heal, 70, SkillControl::Always, SkillValueType::AtkPercent},
+       {SkillEffect::Buff, 0, SkillControl::Always, SkillValueType::Fixed}},
+      {{BattleBuffType::HotHeal, BuffTarget::Self, BuffValueType::Percent,
+        "生命綻放 : 每回合恢復最大生命值 6% 的血量", 3, 6}}
+    };
+  } else if ( id == SkillID::LastStand ) {
+    return{
+      "背水一擊",
+      "依照自己已損失生命造成 90% 傷害",
+      SkillEffect::Attack,
+      5,
+      {{SkillEffect::Attack, 90, SkillControl::Always,
+        SkillValueType::LostHpPercent}},
+      {{BattleBuffType::NoBuff, BuffTarget::Self, BuffValueType::Fixed, "", 0, 0}}
+    };
+  } else if ( id == SkillID::ThunderStrike ) {
+    return{
+      "雷擊",
+      "造成攻擊力 160% 的傷害，並提高命中率",
+      SkillEffect::Attack,
+      3,
+      {{SkillEffect::Attack, 160, SkillControl::Always, SkillValueType::AtkPercent},
+       {SkillEffect::Buff, 0, SkillControl::Always, SkillValueType::Fixed}},
+      {{BattleBuffType::AddHitRate, BuffTarget::Self, BuffValueType::Fixed,
+        "雷感 : 命中率 +10%", 2, 10}}
+    };
+  } else if ( id == SkillID::VitalStrike ) {
+    return{
+      "命脈打擊",
+      "造成自身最大生命值 25% 的傷害",
+      SkillEffect::Attack,
+      4,
+      {{SkillEffect::Attack, 25, SkillControl::Always,
+        SkillValueType::MaxHpPercent}},
       {{BattleBuffType::NoBuff, BuffTarget::Self, BuffValueType::Fixed, "", 0, 0}}
     };
   } else if ( id == SkillID::Slime_Attack ) {
@@ -88,7 +266,7 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
     };
   } else if ( id == SkillID::Vampire_Normal ) {
     return {
-      "普通攻擊",
+      "淬血爪擊",
       "造成最大生命值 20% 的傷害，並施加持續三回合 : 淬血 ",
       SkillEffect::Attack,
       0,
@@ -146,4 +324,86 @@ SkillInfo SkillDataBase::GetSkillInfo(SkillID id) {
       {{BattleBuffType::NoBuff, BuffTarget::Self, BuffValueType::Fixed, "", 0, 0}}
 
   };
+}
+
+SkillRarity SkillDataBase::GetSkillRarity(SkillID skill_id) {
+  if ( skill_id == SkillID::PowerStrike ||
+       skill_id == SkillID::GuardBreak ||
+       skill_id == SkillID::Focus ||
+       skill_id == SkillID::LifeBloom ||
+       skill_id == SkillID::ThunderStrike ||
+       skill_id == SkillID::Goblin_Bash ||
+       skill_id == SkillID::Goblin_warCry ||
+       skill_id == SkillID::Vampire_Blood_Mist ) {
+    return SkillRarity::Rare;
+  }
+  if ( skill_id == SkillID::FlameBurst ||
+       skill_id == SkillID::LastStand ||
+       skill_id == SkillID::VitalStrike ||
+       skill_id == SkillID::Vampire_Drain ||
+       skill_id == SkillID::Vampire_BloodLust ||
+       skill_id == SkillID::Vampire_Normal ||
+       skill_id == SkillID::Goblin_SneakAttack ||
+       skill_id == SkillID::DemonHunter_ExecutionStance ||
+       skill_id == SkillID::DemonHunter_DemonPiercingBolt ||
+       skill_id == SkillID::DemonHunter_HolyPurge ) {
+    return SkillRarity::Epic;
+  }
+  return SkillRarity::Common;
+}
+
+std::string SkillDataBase::GetSkillRarityName(SkillID skill_id) {
+  SkillRarity rarity = GetSkillRarity(skill_id);
+  if ( rarity == SkillRarity::Common ) {
+    return "普通";
+  }
+  if ( rarity == SkillRarity::Rare ) {
+    return "稀有";
+  }
+  return "史詩";
+}
+
+std::vector<SkillID> SkillDataBase::GetAllLearnableSkills() {
+  return {
+    SkillID::NormalAttack,
+    SkillID::Heal,
+    SkillID::QuickSlash,
+    SkillID::PowerStrike,
+    SkillID::Regeneration,
+    SkillID::GuardBreak,
+    SkillID::FlameBurst,
+    SkillID::IronSkin,
+    SkillID::Focus,
+    SkillID::Haste,
+    SkillID::PoisonNeedle,
+    SkillID::LifeBloom,
+    SkillID::LastStand,
+    SkillID::ThunderStrike,
+    SkillID::VitalStrike,
+    SkillID::Slime_Attack,
+    SkillID::Goblin_Bash,
+    SkillID::Goblin_warCry,
+    SkillID::Goblin_SneakAttack,
+    SkillID::Vampire_Normal,
+    SkillID::Vampire_Drain,
+    SkillID::Vampire_BloodLust,
+    SkillID::Vampire_Blood_Mist,
+    SkillID::DemonHunter_ExecutionStance,
+    SkillID::DemonHunter_DemonPiercingBolt,
+    SkillID::DemonHunter_HolyPurge
+  };
+}
+
+SkillID SkillDataBase::GetRandomJarSkill() {
+  return RandomSkillByRarity(65, 28);
+}
+
+SkillID SkillDataBase::GetRandomDropSkill(int enemy_level) {
+  if ( enemy_level >= 8 ) {
+    return RandomSkillByRarity(45, 38);
+  }
+  if ( enemy_level >= 5 ) {
+    return RandomSkillByRarity(58, 32);
+  }
+  return RandomSkillByRarity(78, 20);
 }

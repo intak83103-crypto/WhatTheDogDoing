@@ -12,7 +12,9 @@ const std::vector<DogDoing::LevelData> DogDoing::level_table = {
   {5, 190, 96,  16, 14},
   {6, 280, 104, 17, 15},
   {7, 380, 112, 18, 15},
-  {8, 520, 130, 22, 17}
+  {8, 520, 130, 22, 17},
+  {9, 700, 155, 26, 19},
+  {10, 920, 180, 30, 22}
 
 
 };
@@ -28,8 +30,6 @@ void DogDoing::Init() {
   exp = 0;
   RanDomElement();
   AddSkill(SkillID::NormalAttack);
-  AddSkill(SkillID::Heal);
-  AddSkill(SkillID::Vampire_Drain);
 }
 
 void DogDoing::ApplyLevelData() {
@@ -54,6 +54,13 @@ DogDoing::DogDoing(std::string name) {
   IO::PrintDDSetUp({GetName(), rank, level, GetElement()});
 }
 
+DogDoing::DogDoing(std::string name, Element element) {
+  Init();
+  SetName(name);
+  SetElement(element);
+  IO::PrintDDSetUp({GetName(), rank, level, GetElement()});
+}
+
 int DogDoing::GetLevel() const {
   return level;
 }
@@ -66,6 +73,7 @@ int DogDoing::GetRank() const {
 void DogDoing::PrintInfo() const {
   DDInfo dd = InfoPackage();
   IO::PrintDDInfo(dd);
+  ListSkill();
 }
 
 

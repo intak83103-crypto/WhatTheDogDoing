@@ -9,7 +9,7 @@
 #include "DisplayData.h"
 
 enum class Control {
-  User, DogDoing, Shop, Buy, None, DelUser, Backpack, SelectTargetDD
+  User, DogDoing, Shop, Buy, None, DelUser, Backpack, SelectTargetDD, EquipSkill
 };
 
 enum class Operate {
@@ -20,7 +20,7 @@ enum class Operate {
   User, AddUser, DelUser, ReNameUser, QuitUser, ListUser, BacktoDD, SwitchUser,
   ConfirmDelUser, CanCelDelUser, ConfirmDel, CanCelDel, HelpDelUser,
   HelpSelectTargetDD, SelectTargetDD, BacktoBackpack,
-  BattleTest
+  BattleTest, Explore, SkillLibrary, EquipSkill, Op
 };
 
 class Editor {
@@ -35,6 +35,7 @@ private:
   int switch_user_index = -1;
   int use_item_of_bp = -1;
   int select_dd_index = -1;
+  int equip_skill_slot = -1;
 
   std::vector<std::string> GetUserNameArray() const;
   void NewUser();
@@ -50,6 +51,7 @@ private:
   void OperateDelUser(Operate op, std::string str);
   void OperateBackpack(Operate op, std::string str);
   void OperateSelectTargetDD(Operate op, std::string str);
+  void OperateEquipSkill(Operate op, std::string str);
   void BattleTest();
   void StartBattleTest(int enemy_index);
   void SetUpShop();

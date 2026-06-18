@@ -23,3 +23,9 @@ ProductSmallExpPotion::ProductSmallExpPotion() : Product("小經驗藥水", 200)
 void ProductSmallExpPotion::Apply(User& user) const {
   user.GetItem(ItemType::SmallExpPotion);
 }
+
+ProductSkillJar::ProductSkillJar() : Product("技能罐", 50) {}
+
+void ProductSkillJar::Apply(User& user) const {
+  user.LearnRandomSkillFromJar();
+}
